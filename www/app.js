@@ -744,7 +744,7 @@ map.on('contextmenu', function(e) {
             <h4 style="margin: 0 0 10px 0;">🍄 Neuer Fund</h4>
             <input type="text" id="neu-notiz" placeholder="Welcher Pilz? / Notizen" style="width: 100%; margin-bottom: 8px; padding: 5px;"><br>
             <select id="neu-geniessbarkeit" style="width: 100%; margin-bottom: 8px; padding: 5px;">
-                <option value="Unbekannt">❓ Unbekannt</option>
+                <option value="">❓ Unbekannt</option>
                 <option value="Essbar">🍽️ Essbar</option>
                 <option value="Ungenießbar">🤢 Ungenießbar</option>
                 <option value="Giftig">☠️ Giftig</option>
@@ -770,6 +770,13 @@ window.speichereNeuenFund = async function(lat, lng) {
     const statusText = document.getElementById('upload-status');
 
     if (dateien.length > 3) { statusText.innerHTML = "❌ Maximal 3 Fotos erlaubt!"; return; }
+
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) {
+        statusText.innerHTML = "⚠️ Bitte einloggen, um einen Fund zu speichern.";
+        return;
+    }
+
     statusText.innerHTML = "⏳ Lade hoch... (das kann dauern)";
     let urls = [null, null, null];
 
@@ -781,12 +788,13 @@ window.speichereNeuenFund = async function(lat, lng) {
     }
 
     const { data, error } = await _supabase.from('pilze').insert([{
-        lat: lat, lng: lng, notiz: notizFeld, geniessbarkeit: genFeld,
+        lat: lat, lng: lng, notiz: notizFeld, geniessbarkeit: genFeld || null,
         fund_datum: datumFeld || null,
-        foto_url: urls[0], foto_url_2: urls[1], foto_url_3: urls[2]
-    }]).select(); 
+        foto_url: urls[0], foto_url_2: urls[1], foto_url_3: urls[2],
+        user_id: session.user.id
+    }]).select();
 
-    if (error) { statusText.innerHTML = "❌ Datenbank-Fehler!"; }
+    if (error) { console.error(error); statusText.innerHTML = "❌ Datenbank-Fehler: " + (error.message || JSON.stringify(error)); }
     else {
         if (window._aufzeichnungAktiv && data && data[0]) {
             window._aufzeichnungFundeIds.push(data[0].id);
@@ -914,7 +922,7 @@ window.oeffneBearbeitung = function(id) {
                 style="${inp}">
 
         <select id="edit-gen-${id}" style="${inp}">
-            <option value="Unbekannt"   ${p.geniessbarkeit === 'Unbekannt'   ? 'selected' : ''}>❓ Unbekannt</option>
+            <option value=""            ${!p.geniessbarkeit                 ? 'selected' : ''}>❓ Unbekannt</option>
             <option value="Essbar"      ${p.geniessbarkeit === 'Essbar'      ? 'selected' : ''}>🍽️ Essbar</option>
             <option value="Ungenießbar" ${p.geniessbarkeit === 'Ungenießbar' ? 'selected' : ''}>🤢 Ungenießbar</option>
             <option value="Giftig"      ${p.geniessbarkeit === 'Giftig'      ? 'selected' : ''}>☠️ Giftig</option>
@@ -975,7 +983,7 @@ window.speichereAenderungen = async function(id) {
 
     if (statusDiv) statusDiv.innerHTML = '<span style="color:#888;">⏳ Wird gespeichert…</span>';
 
-    const updateDaten = { notiz: neueNotiz, geniessbarkeit: neuesGen, fund_datum: neuesDatum || null };
+    const updateDaten = { notiz: neueNotiz, geniessbarkeit: neuesGen || null, fund_datum: neuesDatum || null };
     for (let i = 0; i < dateien.length; i++) {
         const dateiName = `${Date.now()}_${dateien[i].name.replace(/[^a-zA-Z0-9.]/g, '')}`;
         const { error } = await _supabase.storage.from('pilzfotos').upload(dateiName, dateien[i]);
@@ -1514,6 +1522,12 @@ window.speichereFinaleTour = async function() {
     const name = document.getElementById('tour-name').value.trim() || "Wald-Expedition";
     const d = window.aktuelleTourDaten;
 
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) {
+        alert('⚠️ Bitte einloggen, um eine Route zu speichern.');
+        return;
+    }
+
     const { data: routeData, error } = await _supabase.from('wanderrouten').insert([{
         name: name,
         distanz_km: parseFloat(d.distanz),
@@ -1521,7 +1535,8 @@ window.speichereFinaleTour = async function() {
         hoehenmeter_ab: d.abstieg,
         anteil_nsg_prozent: d.nsg_anteil,
         dauer_min: d.dauer,
-        koordinaten: d.koordinaten
+        koordinaten: d.koordinaten,
+        user_id: session.user.id
     }]).select('id').single();
 
     if (!error) {
@@ -1538,7 +1553,7 @@ window.speichereFinaleTour = async function() {
         window.routeKomplettLoeschen();
     } else {
         console.error(error);
-        alert("❌ Speicher-Fehler – Details in der Konsole.");
+        alert("❌ Speicher-Fehler: " + (error.message || JSON.stringify(error)));
     }
 };
 
@@ -1548,6 +1563,12 @@ window.speichereAufzeichnungInline = async function() {
     const d = window.aktuelleTourDaten;
     if (!d) return;
 
+    const { data: { session } } = await _supabase.auth.getSession();
+    if (!session) {
+        alert('⚠️ Bitte einloggen, um eine Route zu speichern.');
+        return;
+    }
+
     const { data: routeData, error } = await _supabase.from('wanderrouten').insert([{
         name: name,
         distanz_km: parseFloat(d.distanz),
@@ -1555,7 +1576,8 @@ window.speichereAufzeichnungInline = async function() {
         hoehenmeter_ab: d.abstieg,
         anteil_nsg_prozent: d.nsg_anteil,
         dauer_min: d.dauer,
-        koordinaten: d.koordinaten
+        koordinaten: d.koordinaten,
+        user_id: session.user.id
     }]).select('id').single();
 
     if (!error) {
@@ -1570,7 +1592,7 @@ window.speichereAufzeichnungInline = async function() {
         window.routeKomplettLoeschen();
     } else {
         console.error(error);
-        alert('❌ Speicher-Fehler – Details in der Konsole.');
+        alert('❌ Speicher-Fehler: ' + (error.message || JSON.stringify(error)));
     }
 };
 
