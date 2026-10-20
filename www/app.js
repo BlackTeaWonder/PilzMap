@@ -589,12 +589,9 @@ function oeffneKlickPopup(latlng) {
             </div>`;
     }
 
-    const aktionenBlock = `
-        <div style="border-top:1px solid #eee; padding-top:10px; display:flex; flex-direction:column; gap:7px;">
-            <button onclick="window.oeffneNeuenFund(${latR},${lngR})"
-                style="width:100%;padding:9px;background:#2ca25f;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.88em;">
-                🍄 Pilzfund hier eintragen
-            </button>
+    const hatStartpunkt = ['start_gesetzt', 'berechnung', 'route_fertig'].includes(window.routingStatus);
+    const routingButtonsHtml = hatStartpunkt
+        ? `
             <div style="display:flex; gap:7px;">
                 <button onclick="window.setzeStart(${latR},${lngR})"
                     style="flex:1;padding:9px 4px;background:#27ae60;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
@@ -614,7 +611,26 @@ function oeffneKlickPopup(latlng) {
                     style="flex:1;padding:9px 4px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
                     🚗 Auto parken
                 </button>
-            </div>
+            </div>`
+        : `
+            <div style="display:flex; gap:7px;">
+                <button onclick="window.setzeStart(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#27ae60;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    🚀 Route planen
+                </button>
+                <button onclick="window.speichereAuto(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    🚗 Auto parken
+                </button>
+            </div>`;
+
+    const aktionenBlock = `
+        <div style="border-top:1px solid #eee; padding-top:10px; display:flex; flex-direction:column; gap:7px;">
+            <button onclick="window.oeffneNeuenFund(${latR},${lngR})"
+                style="width:100%;padding:9px;background:#2ca25f;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.88em;">
+                🍄 Pilzfund hier eintragen
+            </button>
+            ${routingButtonsHtml}
         </div>`;
 
     const bauePopupHtml = (ortsName, wetterHtml) => `
