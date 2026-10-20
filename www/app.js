@@ -618,11 +618,6 @@ function oeffneKlickPopup(latlng) {
                     </div>`;
             }
 
-            const status = window.routingStatus;
-            const zwischenstoppBtn = (status === 'route_fertig')
-                ? `<button onclick="window.fuegeZwischenstopp(${latR},${lngR})" style="width:100%;padding:8px;background:#e67e22;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">➕ Zwischenstopp hier einfügen</button>`
-                : '';
-
             ladePopup.setContent(`
                 <div style="font-family:'Segoe UI',Tahoma,sans-serif; min-width:240px; padding:4px;">
                     ${layerBlock}
@@ -646,11 +641,16 @@ function oeffneKlickPopup(latlng) {
                                 🎯 Ziel setzen
                             </button>
                         </div>
-                        ${zwischenstoppBtn}
-                        <button onclick="window.speichereAuto(${latR},${lngR})"
-                            style="width:100%;padding:8px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-size:0.85em;">
-                            🚗 Auto hier parken
-                        </button>
+                        <div style="display:flex; gap:7px;">
+                            <button onclick="window.fuegeZwischenstopp(${latR},${lngR})"
+                                style="flex:1;padding:9px 4px;background:#e67e22;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                                ➕ Zwischenstopp
+                            </button>
+                            <button onclick="window.speichereAuto(${latR},${lngR})"
+                                style="flex:1;padding:9px 4px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                                🚗 Auto parken
+                            </button>
+                        </div>
                     </div>
                 </div>
             `);
@@ -1180,7 +1180,7 @@ window.aktualisiereRoutenBar = function() {
         bar.classList.add('status-start');
         inhalt.innerHTML = `
             <div class="rb-status">🚀 Startpunkt gesetzt</div>
-            <div class="rb-hint">Klicke auf der Karte auf <b>🎯 Ziel setzen</b>, um die Route zu berechnen.</div>
+            <div class="rb-hint">Klicke auf der Karte auf <b>➕ Zwischenstopp</b> oder <b>🎯 Ziel setzen</b>, um die Route zu berechnen.</div>
             <button class="routen-btn routen-btn-grau rb-btn-full" onclick="window.routeKomplettLoeschen()">✕ Abbrechen</button>`;
         return;
     }
@@ -1310,7 +1310,10 @@ window.aktualisiereRoutenBar = function() {
     }
 };
 
+window._hatEndziel = false;
+
 window.setzeStart = function(lat, lng) {
+    window._hatEndziel = false;
     window.routingStatus = 'start_gesetzt';
     window.routenPlaner.setWaypoints([L.latLng(lat, lng)]);
     window.aktualisiereRoutenBar();
@@ -1318,7 +1321,8 @@ window.setzeStart = function(lat, lng) {
 };
 
 window.setzeZiel = function(lat, lng) {
-    if (window.routingStatus === 'leer') {
+    const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng).map(p => p.latLng);
+    if (window.routingStatus === 'leer' || punkte.length === 0) {
         // Kleiner Hinweis-Toast, kein Alert
         const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
             .setLatLng(L.latLng(lat, lng))
@@ -1327,8 +1331,12 @@ window.setzeZiel = function(lat, lng) {
         setTimeout(() => map.closePopup(), 2200);
         return;
     }
-    const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng);
-    punkte.push(L.latLng(lat, lng));
+    if (window._hatEndziel && punkte.length >= 2) {
+        punkte[punkte.length - 1] = L.latLng(lat, lng);
+    } else {
+        punkte.push(L.latLng(lat, lng));
+    }
+    window._hatEndziel = true;
     window.routingStatus = 'berechnung';
     window.aktualisiereRoutenBar();
     window.routenPlaner.setWaypoints(punkte);
@@ -1336,9 +1344,22 @@ window.setzeZiel = function(lat, lng) {
 };
 
 window.fuegeZwischenstopp = function(lat, lng) {
-    const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng);
-    // Vor dem letzten Punkt einfügen, damit die Reihenfolge stimmt
-    punkte.splice(punkte.length - 1, 0, L.latLng(lat, lng));
+    const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng).map(p => p.latLng);
+    if (window.routingStatus === 'leer' || punkte.length === 0) {
+        const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
+            .setLatLng(L.latLng(lat, lng))
+            .setContent('<div style="padding:6px 10px; font-size:0.9em;">Bitte zuerst einen <b>🚀 Startpunkt</b> wählen!</div>')
+            .openOn(map);
+        setTimeout(() => map.closePopup(), 2200);
+        return;
+    }
+    if (window._hatEndziel && punkte.length >= 2) {
+        // Vor dem Endziel einfügen, damit die Reihenfolge stimmt
+        punkte.splice(punkte.length - 1, 0, L.latLng(lat, lng));
+    } else {
+        // Noch kein festes Endziel gesetzt -> hinten anhängen und Route direkt bis zum Zwischenstopp berechnen
+        punkte.push(L.latLng(lat, lng));
+    }
     window.routingStatus = 'berechnung';
     window.aktualisiereRoutenBar();
     window.routenPlaner.setWaypoints(punkte);
@@ -1352,6 +1373,7 @@ window.routeKomplettLoeschen = function() {
     }
     if (window._routeLinie) { map.removeLayer(window._routeLinie); window._routeLinie = null; }
     window.routenPlaner.setWaypoints([]);
+    window._hatEndziel = false;
     window.aktuelleTourDaten = null;
     window.routingStatus = 'leer';
     window.aktualisiereRoutenBar();
@@ -1763,6 +1785,7 @@ window.speichereAuto = function(lat, lng) {
 // Funktion 2: Route zum Auto
 window.routeZumAuto = function() {
     if (!window.meinAutoStandort) return;
+    window._hatEndziel = true;
     window.routingStatus = 'berechnung';
     window.aktualisiereRoutenBar();
     navigator.geolocation.getCurrentPosition(function(pos) {
