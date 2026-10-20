@@ -12,6 +12,9 @@ on:
       - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -48,3 +51,13 @@ jobs:
           name: PilzHub-debug-${{ github.run_number }}
           path: android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
+
+      - name: Create GitHub Release with APK
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cp android/app/build/outputs/apk/debug/app-debug.apk PilzHub-BW.apk
+          gh release create "v1.0.${{ github.run_number }}" PilzHub-BW.apk \
+            --title "Pilz-Hub BW v1.0.${{ github.run_number }}" \
+            --notes "Automatischer Android-APK-Build (Commit ${{ github.sha }}). Direkt in der GitHub-App unter 'Assets' als PilzHub-BW.apk herunterladbar." \
+            --latest
