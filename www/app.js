@@ -540,124 +540,129 @@ function oeffneKlickPopup(latlng) {
     const layerTreffer = holeLayerTrefferAnPunkt(lat, lng);
     const bwiTreffer   = holeBwiAnPunkt(lat, lng);
 
+    let layerBlock = '';
+    if (layerTreffer.length > 0) {
+        const _sammelVerboten = new Set(['Naturschutzgebiet', 'Nationalpark', 'Bannwald']);
+        const hatVerbotenes = layerTreffer.some(t => _sammelVerboten.has(t.art));
+        const zeilen = layerTreffer.map(t => {
+            const verboten = _sammelVerboten.has(t.art);
+            const rechts = verboten
+                ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
+                       <span style="font-size:0.78em;color:#c0392b;white-space:nowrap;">${t.art}</span>
+                       <span style="font-size:0.72em;color:#c0392b;white-space:nowrap;">🚫 Pilze sammeln verboten</span>
+                   </div>`
+                : `<span style="font-size:0.78em;color:#888;white-space:nowrap;">${t.art}</span>`;
+            return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;">${t.ikon} <span style="flex:1;font-size:0.88em;">${t.name}</span>${rechts}</div>`;
+        }).join('');
+        const bgCol     = hatVerbotenes ? '#fff0f0' : '#f0fdf6';
+        const bordCol   = hatVerbotenes ? '#c0392b' : '#27ae60';
+        const kopfColor = hatVerbotenes ? '#c0392b' : '#27ae60';
+        const kopfIkon  = hatVerbotenes ? '🚫' : '🛡️';
+        layerBlock = `
+            <div style="background:${bgCol};border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid ${bordCol};">
+                <div style="font-weight:700;font-size:0.82em;color:${kopfColor};margin-bottom:3px;">${kopfIkon} Aktive Schutzgebiete</div>
+                ${zeilen}
+            </div>`;
+    }
+
+    let bwiBlock = '';
+    if (bwiTreffer) {
+        const s = bwiTreffer.score;
+        const saureText = s >= 8 ? 'Säurezeiger dominant (pH ~3,5–4)' :
+                          s >= 6 ? 'Säurezeiger häufig (pH ~4–4,5)'   :
+                          s >= 4 ? 'Säurezeiger mäßig (pH ~4,5–5)'    :
+                          s >= 2 ? 'Säurezeiger selten (pH ~5–5,5)'   :
+                                   'kaum Säurezeiger (pH >5,5)';
+        const farbe = s >= 8 ? '#d7191c' : s >= 6 ? '#fdae61' : s >= 4 ? '#c8a000' : s >= 2 ? '#6aaa2a' : '#1a9641';
+        const [s1,s2,s3,s4] = bwiTreffer.sbv;
+        bwiBlock = `
+            <div style="background:#f5faf5;border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid ${farbe};">
+                <div style="font-weight:700;font-size:0.82em;color:#2d6a2d;margin-bottom:4px;">🌿 Bodenvegetation (BWI 2002)</div>
+                <div style="font-size:0.86em;font-weight:600;color:#333;margin-bottom:3px;">${saureText}</div>
+                ${bwiTreffer.wald ? `<div style="font-size:0.77em;color:#888;margin-bottom:4px;">${bwiTreffer.wald}</div>` : ''}
+                <div style="font-size:0.75em;color:#666;display:flex;flex-wrap:wrap;gap:4px 10px;">
+                    <span>🌾 Drahtschmiele: ${s1}</span>
+                    <span>🫐 Heidelbeere: ${s2}</span>
+                    <span>🔴 Preiselbeere: ${s3}</span>
+                    <span>🌸 Heidekraut: ${s4}</span>
+                </div>
+            </div>`;
+    }
+
+    const aktionenBlock = `
+        <div style="border-top:1px solid #eee; padding-top:10px; display:flex; flex-direction:column; gap:7px;">
+            <button onclick="window.oeffneNeuenFund(${latR},${lngR})"
+                style="width:100%;padding:9px;background:#2ca25f;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.88em;">
+                🍄 Pilzfund hier eintragen
+            </button>
+            <div style="display:flex; gap:7px;">
+                <button onclick="window.setzeStart(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#27ae60;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    🚀 Startpunkt
+                </button>
+                <button onclick="window.setzeZiel(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#2980b9;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    🎯 Ziel setzen
+                </button>
+            </div>
+            <div style="display:flex; gap:7px;">
+                <button onclick="window.fuegeZwischenstopp(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#e67e22;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    ➕ Zwischenstopp
+                </button>
+                <button onclick="window.speichereAuto(${latR},${lngR})"
+                    style="flex:1;padding:9px 4px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
+                    🚗 Auto parken
+                </button>
+            </div>
+        </div>`;
+
+    const bauePopupHtml = (ortsName, wetterHtml) => `
+        <div style="font-family:'Segoe UI',Tahoma,sans-serif; min-width:240px; padding:4px;">
+            ${layerBlock}
+            ${bwiBlock}
+            <div style="text-align:center; margin-bottom:10px;">
+                <h4 style="margin:0 0 5px 0; color:#222; font-size:1.1em;">📍 ${ortsName}</h4>
+                ${wetterHtml}
+            </div>
+            ${aktionenBlock}
+        </div>`;
+
     const ladePopup = L.popup()
         .setLatLng(latlng)
-        .setContent('<div style="padding:10px; text-align:center; color:#555;">⏳ Daten werden geladen...</div>')
+        .setContent(bauePopupHtml('Lade Ort…', '<div style="font-size:0.82em; color:#888;">⏳ Wetterdaten werden geladen…</div>'))
         .openOn(map);
 
     const wetterUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latR}&longitude=${lngR}&current_weather=true&daily=precipitation_sum&past_days=7&forecast_days=1&timezone=Europe/Berlin`;
     const ortsUrl   = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latR}&lon=${lngR}`;
 
-    Promise.all([fetch(ortsUrl).then(r => r.json()), fetch(wetterUrl).then(r => r.json())])
-        .then(([ortsDaten, wetterDaten]) => {
-            let ortsName = "Natur pur";
-            if (ortsDaten.address) {
-                ortsName = ortsDaten.address.city || ortsDaten.address.town ||
-                           ortsDaten.address.village || ortsDaten.address.municipality || "Natur pur";
-            }
+    Promise.all([
+        fetch(ortsUrl).then(r => r.json()).catch(() => ({})),
+        fetch(wetterUrl).then(r => r.json()).catch(() => ({}))
+    ]).then(([ortsDaten, wetterDaten]) => {
+        let ortsName = "Natur pur";
+        if (ortsDaten && ortsDaten.address) {
+            ortsName = ortsDaten.address.city || ortsDaten.address.town ||
+                       ortsDaten.address.village || ortsDaten.address.municipality || "Natur pur";
+        }
 
-            let wetterBlock = '';
-            if (wetterDaten.current_weather && wetterDaten.daily) {
-                const temp  = wetterDaten.current_weather.temperature;
-                const wind  = wetterDaten.current_weather.windspeed;
-                const regen = wetterDaten.daily.precipitation_sum;
-                let regenSumme = 0;
-                for (let i = 0; i < 7; i++) regenSumme += regen[i] || 0;
-                regenSumme = Math.round(regenSumme * 10) / 10;
-                wetterBlock = `
-                    <div style="font-size:0.9em; color:#555; margin-bottom:3px;">🌡️ <b>${temp} °C</b> &nbsp;|&nbsp; 💨 ${wind} km/h</div>
-                    <div style="font-size:0.82em; background:#eef5fc; color:#1e6091; padding:3px 10px; border-radius:20px; display:inline-block; font-weight:bold;">🌧️ 7-Tage-Regen: ${regenSumme} mm</div>`;
-            }
+        let wetterBlock = '';
+        if (wetterDaten && wetterDaten.current_weather && wetterDaten.daily) {
+            const temp  = wetterDaten.current_weather.temperature;
+            const wind  = wetterDaten.current_weather.windspeed;
+            const regen = wetterDaten.daily.precipitation_sum;
+            let regenSumme = 0;
+            for (let i = 0; i < 7; i++) regenSumme += regen[i] || 0;
+            regenSumme = Math.round(regenSumme * 10) / 10;
+            wetterBlock = `
+                <div style="font-size:0.9em; color:#555; margin-bottom:3px;">🌡️ <b>${temp} °C</b> &nbsp;|&nbsp; 💨 ${wind} km/h</div>
+                <div style="font-size:0.82em; background:#eef5fc; color:#1e6091; padding:3px 10px; border-radius:20px; display:inline-block; font-weight:bold;">🌧️ 7-Tage-Regen: ${regenSumme} mm</div>`;
+        }
 
-            let layerBlock = '';
-            if (layerTreffer.length > 0) {
-                const _sammelVerboten = new Set(['Naturschutzgebiet', 'Nationalpark', 'Bannwald']);
-                const hatVerbotenes = layerTreffer.some(t => _sammelVerboten.has(t.art));
-                const zeilen = layerTreffer.map(t => {
-                    const verboten = _sammelVerboten.has(t.art);
-                    const rechts = verboten
-                        ? `<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px;">
-                               <span style="font-size:0.78em;color:#c0392b;white-space:nowrap;">${t.art}</span>
-                               <span style="font-size:0.72em;color:#c0392b;white-space:nowrap;">🚫 Pilze sammeln verboten</span>
-                           </div>`
-                        : `<span style="font-size:0.78em;color:#888;white-space:nowrap;">${t.art}</span>`;
-                    return `<div style="display:flex;align-items:center;gap:6px;padding:3px 0;">${t.ikon} <span style="flex:1;font-size:0.88em;">${t.name}</span>${rechts}</div>`;
-                }).join('');
-                const bgCol     = hatVerbotenes ? '#fff0f0' : '#f0fdf6';
-                const bordCol   = hatVerbotenes ? '#c0392b' : '#27ae60';
-                const kopfColor = hatVerbotenes ? '#c0392b' : '#27ae60';
-                const kopfIkon  = hatVerbotenes ? '🚫' : '🛡️';
-                layerBlock = `
-                    <div style="background:${bgCol};border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid ${bordCol};">
-                        <div style="font-weight:700;font-size:0.82em;color:${kopfColor};margin-bottom:3px;">${kopfIkon} Aktive Schutzgebiete</div>
-                        ${zeilen}
-                    </div>`;
-            }
-
-            let bwiBlock = '';
-            if (bwiTreffer) {
-                const s = bwiTreffer.score;
-                const saureText = s >= 8 ? 'Säurezeiger dominant (pH ~3,5–4)' :
-                                  s >= 6 ? 'Säurezeiger häufig (pH ~4–4,5)'   :
-                                  s >= 4 ? 'Säurezeiger mäßig (pH ~4,5–5)'    :
-                                  s >= 2 ? 'Säurezeiger selten (pH ~5–5,5)'   :
-                                           'kaum Säurezeiger (pH >5,5)';
-                const farbe = s >= 8 ? '#d7191c' : s >= 6 ? '#fdae61' : s >= 4 ? '#c8a000' : s >= 2 ? '#6aaa2a' : '#1a9641';
-                const [s1,s2,s3,s4] = bwiTreffer.sbv;
-                bwiBlock = `
-                    <div style="background:#f5faf5;border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid ${farbe};">
-                        <div style="font-weight:700;font-size:0.82em;color:#2d6a2d;margin-bottom:4px;">🌿 Bodenvegetation (BWI 2002)</div>
-                        <div style="font-size:0.86em;font-weight:600;color:#333;margin-bottom:3px;">${saureText}</div>
-                        ${bwiTreffer.wald ? `<div style="font-size:0.77em;color:#888;margin-bottom:4px;">${bwiTreffer.wald}</div>` : ''}
-                        <div style="font-size:0.75em;color:#666;display:flex;flex-wrap:wrap;gap:4px 10px;">
-                            <span>🌾 Drahtschmiele: ${s1}</span>
-                            <span>🫐 Heidelbeere: ${s2}</span>
-                            <span>🔴 Preiselbeere: ${s3}</span>
-                            <span>🌸 Heidekraut: ${s4}</span>
-                        </div>
-                    </div>`;
-            }
-
-            ladePopup.setContent(`
-                <div style="font-family:'Segoe UI',Tahoma,sans-serif; min-width:240px; padding:4px;">
-                    ${layerBlock}
-                    ${bwiBlock}
-                    <div style="text-align:center; margin-bottom:10px;">
-                        <h4 style="margin:0 0 5px 0; color:#222; font-size:1.1em;">📍 ${ortsName}</h4>
-                        ${wetterBlock}
-                    </div>
-                    <div style="border-top:1px solid #eee; padding-top:10px; display:flex; flex-direction:column; gap:7px;">
-                        <button onclick="window.oeffneNeuenFund(${latR},${lngR})"
-                            style="width:100%;padding:9px;background:#2ca25f;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.88em;">
-                            🍄 Pilzfund hier eintragen
-                        </button>
-                        <div style="display:flex; gap:7px;">
-                            <button onclick="window.setzeStart(${latR},${lngR})"
-                                style="flex:1;padding:9px 4px;background:#27ae60;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
-                                🚀 Startpunkt
-                            </button>
-                            <button onclick="window.setzeZiel(${latR},${lngR})"
-                                style="flex:1;padding:9px 4px;background:#2980b9;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
-                                🎯 Ziel setzen
-                            </button>
-                        </div>
-                        <div style="display:flex; gap:7px;">
-                            <button onclick="window.fuegeZwischenstopp(${latR},${lngR})"
-                                style="flex:1;padding:9px 4px;background:#e67e22;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
-                                ➕ Zwischenstopp
-                            </button>
-                            <button onclick="window.speichereAuto(${latR},${lngR})"
-                                style="flex:1;padding:9px 4px;background:#7f8c8d;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
-                                🚗 Auto parken
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `);
-        })
-        .catch(() => {
-            ladePopup.setContent('<div style="padding:10px;">❌ Verbindung fehlgeschlagen.</div>');
-        });
+        if (map.hasLayer(ladePopup)) {
+            ladePopup.setContent(bauePopupHtml(ortsName, wetterBlock));
+        }
+    });
 }
 
 map.on('click', function(e) { oeffneKlickPopup(e.latlng); });
@@ -1346,14 +1351,21 @@ window.setzeZiel = function(lat, lng) {
 window.fuegeZwischenstopp = function(lat, lng) {
     const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng).map(p => p.latLng);
     if (window.routingStatus === 'leer' || punkte.length === 0) {
-        const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
-            .setLatLng(L.latLng(lat, lng))
-            .setContent('<div style="padding:6px 10px; font-size:0.9em;">Bitte zuerst einen <b>🚀 Startpunkt</b> wählen!</div>')
-            .openOn(map);
-        setTimeout(() => map.closePopup(), 2200);
-        return;
-    }
-    if (window._hatEndziel && punkte.length >= 2) {
+        if (_standortMarker) {
+            window._hatEndziel = false;
+            punkte.push(_standortMarker.getLatLng(), L.latLng(lat, lng));
+        } else if (window.meinAutoStandort) {
+            window._hatEndziel = false;
+            punkte.push(window.meinAutoStandort, L.latLng(lat, lng));
+        } else {
+            const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
+                .setLatLng(L.latLng(lat, lng))
+                .setContent('<div style="padding:6px 10px; font-size:0.9em;">Bitte zuerst einen <b>🚀 Startpunkt</b> wählen!</div>')
+                .openOn(map);
+            setTimeout(() => map.closePopup(), 2200);
+            return;
+        }
+    } else if (window._hatEndziel && punkte.length >= 2) {
         // Vor dem Endziel einfügen, damit die Reihenfolge stimmt
         punkte.splice(punkte.length - 1, 0, L.latLng(lat, lng));
     } else {
