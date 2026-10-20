@@ -1,20 +1,21 @@
+// StatusBar: Grüner Header hinter der Statusleiste (Edge-to-Edge)
+document.addEventListener('deviceready', function() {
+    if (window.StatusBar) {
+        window.StatusBar.overlaysWebView(true);
+        window.StatusBar.styleDefault();
+    }
+}, false);
+
     // === 0. Koordinatensystem für LUBW-Daten (EPSG:25832) definieren ===
 proj4.defs("EPSG:25832", "+proj=utm +zone=32 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs +type=crs");
 proj4.defs("EPSG:31467", "+proj=tmerc +lat_0=0 +lon_0=9 +k=1 +x_0=3500000 +y_0=0 +ellps=bessel +towgs84=598.1,73.7,418.2,0.202,0.045,-2.455,6.7 +units=m +no_defs");
 
 // === 1. Karte initialisieren (Startansicht: ganz Baden-Württemberg) ===
-const map = L.map('map').setView([48.65, 9.0], 8);
+const map = L.map('map', { tapHold: true }).setView([48.65, 9.0], 8);
 
-// Kartenhöhe korrekt halten: body exakt auf sichtbare Fenster-Höhe setzen
-// (verhindert graue Fläche unter der Karte auf Android Chrome)
+// Karte bei Größenänderung neu ausrichten
 (function() {
-    function _syncHoehe() {
-        document.body.style.height = window.innerHeight + 'px';
-        map.invalidateSize();
-    }
-    window.addEventListener('resize', _syncHoehe);
-    window.addEventListener('load',   _syncHoehe);
-    _syncHoehe();
+    window.addEventListener('resize', function() { map.invalidateSize(); });
     if (typeof ResizeObserver !== 'undefined') {
         new ResizeObserver(function() { map.invalidateSize(); })
             .observe(document.getElementById('map'));
@@ -188,11 +189,13 @@ fetch('https://raw.githubusercontent.com/isellsoap/deutschlandGeoJSON/master/2_b
             type: 'Feature',
             geometry: { type: 'Polygon', coordinates: [welt, bwRing] }
         }, {
+            interactive: false,
             style: { fillColor: '#888', fillOpacity: 0.28, stroke: false, fillRule: 'evenodd' }
         }).addTo(map);
 
         // BW-Umriss als dezente Linie
         L.geoJSON(bw, {
+            interactive: false,
             style: { color: '#555', weight: 1.5, fill: false, opacity: 0.5 }
         }).addTo(map);
 
@@ -525,7 +528,10 @@ function holeBwiAnPunkt(lat, lng) {
     return gefunden;
 }
 
+let _letzterContextMenu = 0;
+
 function oeffneKlickPopup(latlng) {
+    if (Date.now() - _letzterContextMenu < 600) return;
     const lat  = latlng.lat;
     const lng  = latlng.lng;
     const latR = lat.toFixed(6);
@@ -626,6 +632,10 @@ function oeffneKlickPopup(latlng) {
                         ${wetterBlock}
                     </div>
                     <div style="border-top:1px solid #eee; padding-top:10px; display:flex; flex-direction:column; gap:7px;">
+                        <button onclick="window.oeffneNeuenFund(${latR},${lngR})"
+                            style="width:100%;padding:9px;background:#2ca25f;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.88em;">
+                            🍄 Pilzfund hier eintragen
+                        </button>
                         <div style="display:flex; gap:7px;">
                             <button onclick="window.setzeStart(${latR},${lngR})"
                                 style="flex:1;padding:9px 4px;background:#27ae60;color:white;border:none;border-radius:7px;cursor:pointer;font-weight:bold;font-size:0.85em;">
@@ -661,13 +671,17 @@ const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
 // === 6.0 LOGIN & AUTHENTIFIZIERUNG ========
 // ==========================================
 
-// Holt die HTML-Elemente (die du in der index.html angelegt hast)
+// Login-Modal öffnen/schließen
+window.toggleLoginModal = function() {
+    document.getElementById('login-modal').classList.toggle('offen');
+    document.getElementById('login-modal-backdrop').classList.toggle('offen');
+};
+
 const emailInput = document.getElementById('login-email');
 const passwordInput = document.getElementById('login-password');
 const loginBtn = document.getElementById('btn-login');
 const logoutBtn = document.getElementById('btn-logout');
 const statusText = document.getElementById('auth-status');
-const loginContainer = document.getElementById('login-container');
 
 // Login-Funktion
 async function login() {
@@ -699,23 +713,25 @@ if (logoutBtn) logoutBtn.addEventListener('click', logout);
 
 // --- Magie: Hört auf Login/Logout und merkt sich dich ---
 _supabase.auth.onAuthStateChange((event, session) => {
+    const userBtn = document.getElementById('btn-user');
     if (session) {
-        // Jemand ist eingeloggt!
-        if (statusText) statusText.innerText = `👤 ${session.user.email}`;
+        if (statusText) statusText.innerText = `✅ ${session.user.email}`;
         if (loginBtn) loginBtn.style.display = 'none';
         if (emailInput) emailInput.style.display = 'none';
         if (passwordInput) passwordInput.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'inline-block';
-        
-        // JETZT erst die Pilze laden!
-        ladePilzeAusCloud(); 
+        if (logoutBtn) logoutBtn.style.display = 'block';
+        if (userBtn) userBtn.classList.add('eingeloggt');
+        // Modal schließen nach Login
+        document.getElementById('login-modal')?.classList.remove('offen');
+        document.getElementById('login-modal-backdrop')?.classList.remove('offen');
+        ladePilzeAusCloud();
     } else {
-        // Niemand ist eingeloggt
         if (statusText) statusText.innerText = "";
-        if (loginBtn) loginBtn.style.display = 'inline-block';
-        if (emailInput) emailInput.style.display = 'inline-block';
-        if (passwordInput) passwordInput.style.display = 'inline-block';
+        if (loginBtn) loginBtn.style.display = 'block';
+        if (emailInput) emailInput.style.display = 'block';
+        if (passwordInput) passwordInput.style.display = 'block';
         if (logoutBtn) logoutBtn.style.display = 'none';
+        if (userBtn) userBtn.classList.remove('eingeloggt');
     }
 });
 
@@ -725,34 +741,36 @@ window.pilzDatenSpeicher = {};
 window.pilzMarkerSpeicher = {}; 
  
 
-// === 6.1. Neues Fund-Formular (Rechtsklick) ===
-// === 6.1. Neues Fund-Formular (Rechtsklick) ===
-map.on('contextmenu', function(e) {
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
+// === 6.1. Neues Fund-Formular (Rechtsklick oder Button im Popup) ===
+window.oeffneNeuenFund = function(lat, lng) {
     const heute = new Date().toISOString().slice(0, 10);
 
     const formHtml = `
         <div style="text-align: center; font-family: sans-serif; min-width: 220px;">
             <h4 style="margin: 0 0 10px 0;">🍄 Neuer Fund</h4>
-            <input type="text" id="neu-notiz" placeholder="Welcher Pilz? / Notizen" style="width: 100%; margin-bottom: 8px; padding: 5px;"><br>
-            <select id="neu-geniessbarkeit" style="width: 100%; margin-bottom: 8px; padding: 5px;">
+            <input type="text" id="neu-notiz" placeholder="Welcher Pilz? / Notizen" style="width: 100%; margin-bottom: 8px; padding: 5px; box-sizing: border-box;"><br>
+            <select id="neu-geniessbarkeit" style="width: 100%; margin-bottom: 8px; padding: 5px; box-sizing: border-box;">
                 <option value="">❓ Unbekannt</option>
                 <option value="Essbar">🍽️ Essbar</option>
                 <option value="Ungenießbar">🤢 Ungenießbar</option>
                 <option value="Giftig">☠️ Giftig</option>
             </select><br>
             <label style="font-size: 0.8em; display:block; text-align:left; margin-bottom:3px;">📅 Funddatum:</label>
-            <input type="date" id="neu-datum" value="${heute}" style="width: 100%; margin-bottom: 8px; padding: 5px;"><br>
+            <input type="date" id="neu-datum" value="${heute}" style="width: 100%; margin-bottom: 8px; padding: 5px; box-sizing: border-box;"><br>
             <label style="font-size: 0.8em; display:block; text-align:left;">Bis zu 3 Fotos:</label>
             <input type="file" id="neu-foto" accept="image/*" multiple style="width: 100%; margin-bottom: 10px;"><br>
-            <button onclick="speichereNeuenFund(${lat}, ${lng})" style="width: 100%; padding: 8px; background: #2ca25f; color: white; border: none; border-radius: 5px; cursor: pointer;">
+            <button onclick="window.speichereNeuenFund(${lat}, ${lng})" style="width: 100%; padding: 8px; background: #2ca25f; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">
                 Speichern & Hochladen
             </button>
             <div id="upload-status" style="margin-top: 10px; font-size: 0.9em; font-weight: bold;"></div>
         </div>
     `;
-    L.popup().setLatLng(e.latlng).setContent(formHtml).openOn(map);
+    L.popup().setLatLng([lat, lng]).setContent(formHtml).openOn(map);
+};
+
+map.on('contextmenu', function(e) {
+    _letzterContextMenu = Date.now();
+    window.oeffneNeuenFund(e.latlng.lat, e.latlng.lng);
 });
 
 window.speichereNeuenFund = async function(lat, lng) {
@@ -767,6 +785,7 @@ window.speichereNeuenFund = async function(lat, lng) {
     const { data: { session } } = await _supabase.auth.getSession();
     if (!session) {
         statusText.innerHTML = "⚠️ Bitte einloggen, um einen Fund zu speichern.";
+        window.toggleLoginModal?.();
         return;
     }
 
@@ -1512,23 +1531,32 @@ window.oeffneTourSpeichern = function() {
 };
 
 window.speichereFinaleTour = async function() {
-    const name = document.getElementById('tour-name').value.trim() || "Wald-Expedition";
+    const nameEl = document.getElementById('tour-name');
+    const name = (nameEl ? nameEl.value.trim() : '') || "Wald-Expedition";
     const d = window.aktuelleTourDaten;
+    if (!d) return;
 
     const { data: { session } } = await _supabase.auth.getSession();
     if (!session) {
         alert('⚠️ Bitte einloggen, um eine Route zu speichern.');
+        window.toggleLoginModal?.();
         return;
     }
 
+    const saubereKoordinaten = (d.koordinaten || []).map(c => ({
+        lat: Number(c.lat),
+        lng: Number(c.lng),
+        ...(c.alt !== undefined ? { alt: Number(c.alt) } : {})
+    }));
+
     const { data: routeData, error } = await _supabase.from('wanderrouten').insert([{
         name: name,
-        distanz_km: parseFloat(d.distanz),
-        hoehenmeter_auf: d.aufstieg,
-        hoehenmeter_ab: d.abstieg,
-        anteil_nsg_prozent: d.nsg_anteil,
-        dauer_min: d.dauer,
-        koordinaten: d.koordinaten,
+        distanz_km: parseFloat(d.distanz) || 0,
+        hoehenmeter_auf: d.aufstieg || 0,
+        hoehenmeter_ab: d.abstieg || 0,
+        anteil_nsg_prozent: d.nsg_anteil || 0,
+        dauer_min: d.dauer || 0,
+        koordinaten: saubereKoordinaten,
         user_id: session.user.id
     }]).select('id').single();
 
@@ -1559,17 +1587,24 @@ window.speichereAufzeichnungInline = async function() {
     const { data: { session } } = await _supabase.auth.getSession();
     if (!session) {
         alert('⚠️ Bitte einloggen, um eine Route zu speichern.');
+        window.toggleLoginModal?.();
         return;
     }
 
+    const saubereKoordinaten = (d.koordinaten || []).map(c => ({
+        lat: Number(c.lat),
+        lng: Number(c.lng),
+        ...(c.alt !== undefined ? { alt: Number(c.alt) } : {})
+    }));
+
     const { data: routeData, error } = await _supabase.from('wanderrouten').insert([{
         name: name,
-        distanz_km: parseFloat(d.distanz),
-        hoehenmeter_auf: d.aufstieg,
-        hoehenmeter_ab: d.abstieg,
-        anteil_nsg_prozent: d.nsg_anteil,
-        dauer_min: d.dauer,
-        koordinaten: d.koordinaten,
+        distanz_km: parseFloat(d.distanz) || 0,
+        hoehenmeter_auf: d.aufstieg || 0,
+        hoehenmeter_ab: d.abstieg || 0,
+        anteil_nsg_prozent: d.nsg_anteil || 0,
+        dauer_min: d.dauer || 0,
+        koordinaten: saubereKoordinaten,
         user_id: session.user.id
     }]).select('id').single();
 
@@ -1980,13 +2015,16 @@ window._aufzeichnungFundeIds = [];
 
 function _aufzeichnungBtnAktualisieren() {
     const btn = document.getElementById('aufzeichnung-btn');
+    const fab = document.getElementById('fab-container');
     if (!btn) return;
     if (window._aufzeichnungAktiv) {
-        btn.textContent = 'Läuft…';
+        btn.innerHTML = '';   // Emoji weg → CSS zeigt weißen Punkt
         btn.classList.add('aktiv');
+        fab?.classList.add('aufzeichnung-aktiv');
     } else {
-        btn.textContent = 'Aufzeichnen';
+        btn.innerHTML = '⏺️';
         btn.classList.remove('aktiv');
+        fab?.classList.remove('aufzeichnung-aktiv');
     }
 }
 
@@ -2020,26 +2058,45 @@ window.starteAufzeichnung = function() {
     window.aktualisiereRoutenBar();
     _aufzeichnungBtnAktualisieren();
 
+    function _verarbeiteGpsPunkt(lat, lng, alt) {
+        if (window._aufzeichnungPunkte.length > 0) {
+            const prev = window._aufzeichnungPunkte[window._aufzeichnungPunkte.length - 1];
+            const distM = turf.distance(
+                turf.point([prev.lng, prev.lat]),
+                turf.point([lng, lat]),
+                { units: 'meters' }
+            );
+            if (distM < 5) return;
+            window._aufzeichnungDistanz += distM;
+        }
+        window._aufzeichnungPunkte.push({ lat, lng, alt });
+        window._aufzeichnungLinie.addLatLng(L.latLng(lat, lng, alt));
+        window.aktualisiereRoutenBar();
+    }
+
+    // Aktuellen bekannten Standort direkt als Startpunkt übernehmen
+    if (_standortMarker) {
+        const startPos = _standortMarker.getLatLng();
+        _verarbeiteGpsPunkt(startPos.lat, startPos.lng, 0);
+    }
+
+    // Auf Android: nativer Hintergrund-Service (läuft auch im Standby)
+    const LocationBg = window.Capacitor?.Plugins?.LocationBackground;
+    if (LocationBg) {
+        LocationBg.startTracking().catch(err => console.warn('GPS-Service:', err));
+        window._aufzeichnungBgHandle = LocationBg.addListener('locationUpdate', function(pos) {
+            _verarbeiteGpsPunkt(pos.lat, pos.lng, pos.alt || 0);
+        });
+    }
+
+    // Zusätzlich Web-Geolocation als zuverlässige Quelle im Vordergrund
     window._aufzeichnungWatchId = navigator.geolocation.watchPosition(
         function(pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const alt = pos.coords.altitude || 0;
-
-            if (window._aufzeichnungPunkte.length > 0) {
-                const prev = window._aufzeichnungPunkte[window._aufzeichnungPunkte.length - 1];
-                const distM = turf.distance(
-                    turf.point([prev.lng, prev.lat]),
-                    turf.point([lng, lat]),
-                    { units: 'meters' }
-                );
-                if (distM < 10) return; // GPS-Rauschen filtern
-                window._aufzeichnungDistanz += distM;
-            }
-
-            window._aufzeichnungPunkte.push({ lat, lng, alt });
-            window._aufzeichnungLinie.addLatLng(L.latLng(lat, lng, alt));
-            window.aktualisiereRoutenBar();
+            _verarbeiteGpsPunkt(
+                pos.coords.latitude,
+                pos.coords.longitude,
+                pos.coords.altitude || 0
+            );
         },
         function(err) { console.warn('GPS-Fehler:', err.message); },
         { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 }
@@ -2051,19 +2108,48 @@ window.starteAufzeichnung = function() {
     }, 10000);
 };
 
-window.stoppeAufzeichnung = function() {
+window._aufzeichnungStoppeSensoren = function() {
     if (window._aufzeichnungWatchId !== null) {
         navigator.geolocation.clearWatch(window._aufzeichnungWatchId);
         window._aufzeichnungWatchId = null;
     }
+    const LocationBg = window.Capacitor?.Plugins?.LocationBackground;
+    if (LocationBg) {
+        LocationBg.stopTracking().catch(() => {});
+    }
+    if (window._aufzeichnungBgHandle) {
+        Promise.resolve(window._aufzeichnungBgHandle).then(h => {
+            if (h && typeof h.remove === 'function') h.remove();
+        }).catch(() => {});
+        window._aufzeichnungBgHandle = null;
+    }
+};
+
+window.stoppeAufzeichnung = function() {
+    window._aufzeichnungStoppeSensoren();
     clearInterval(window._aufzeichnungTimer);
     window._aufzeichnungTimer  = null;
     window._aufzeichnungAktiv  = false;
     _aufzeichnungBtnAktualisieren();
 
-    if (window._aufzeichnungPunkte.length < 2) {
+    // Falls noch kein Punkt aufgezeichnet wurde, letzten bekannten Standort nutzen
+    if (window._aufzeichnungPunkte.length === 0 && _standortMarker) {
+        const p = _standortMarker.getLatLng();
+        window._aufzeichnungPunkte.push({ lat: p.lat, lng: p.lng, alt: 0 });
+        if (window._aufzeichnungLinie) window._aufzeichnungLinie.addLatLng(L.latLng(p.lat, p.lng, 0));
+    }
+
+    if (window._aufzeichnungPunkte.length === 0) {
+        alert('⚠️ Noch kein GPS-Signal empfangen – Aufzeichnung enthält keine Punkte.');
         window.verwerfAufzeichnung();
         return;
+    }
+
+    // Bei nur 1 Punkt (z. B. kurze Aufzeichnung am selben Ort) zweiten Punkt ergänzen, damit Polyline & Speichern funktionieren
+    if (window._aufzeichnungPunkte.length === 1) {
+        const p0 = window._aufzeichnungPunkte[0];
+        window._aufzeichnungPunkte.push({ lat: p0.lat, lng: p0.lng, alt: p0.alt || 0 });
+        if (window._aufzeichnungLinie) window._aufzeichnungLinie.addLatLng(L.latLng(p0.lat, p0.lng, p0.alt || 0));
     }
 
     // Stats berechnen (identisch zu _verarbeiteRoute)
@@ -2098,10 +2184,7 @@ window.stoppeAufzeichnung = function() {
 };
 
 window.verwerfAufzeichnung = function() {
-    if (window._aufzeichnungWatchId !== null) {
-        navigator.geolocation.clearWatch(window._aufzeichnungWatchId);
-        window._aufzeichnungWatchId = null;
-    }
+    window._aufzeichnungStoppeSensoren();
     clearInterval(window._aufzeichnungTimer);
     window._aufzeichnungTimer   = null;
     window._aufzeichnungAktiv    = false;
