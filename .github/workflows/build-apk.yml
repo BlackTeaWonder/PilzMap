@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'www/**'
+      - 'app.js'
       - 'android/**'
       - 'capacitor.config.json'
       - 'package.json'
