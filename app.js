@@ -1351,21 +1351,14 @@ window.setzeZiel = function(lat, lng) {
 window.fuegeZwischenstopp = function(lat, lng) {
     const punkte = window.routenPlaner.getWaypoints().filter(p => p.latLng).map(p => p.latLng);
     if (window.routingStatus === 'leer' || punkte.length === 0) {
-        if (_standortMarker) {
-            window._hatEndziel = false;
-            punkte.push(_standortMarker.getLatLng(), L.latLng(lat, lng));
-        } else if (window.meinAutoStandort) {
-            window._hatEndziel = false;
-            punkte.push(window.meinAutoStandort, L.latLng(lat, lng));
-        } else {
-            const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
-                .setLatLng(L.latLng(lat, lng))
-                .setContent('<div style="padding:6px 10px; font-size:0.9em;">Bitte zuerst einen <b>🚀 Startpunkt</b> wählen!</div>')
-                .openOn(map);
-            setTimeout(() => map.closePopup(), 2200);
-            return;
-        }
-    } else if (window._hatEndziel && punkte.length >= 2) {
+        const hint = L.popup({ closeButton: false, autoPan: false, className: 'hint-popup' })
+            .setLatLng(L.latLng(lat, lng))
+            .setContent('<div style="padding:6px 10px; font-size:0.9em;">Bitte zuerst einen <b>🚀 Startpunkt</b> wählen!</div>')
+            .openOn(map);
+        setTimeout(() => map.closePopup(), 2200);
+        return;
+    }
+    if (window._hatEndziel && punkte.length >= 2) {
         // Vor dem Endziel einfügen, damit die Reihenfolge stimmt
         punkte.splice(punkte.length - 1, 0, L.latLng(lat, lng));
     } else {
