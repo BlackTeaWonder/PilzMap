@@ -25,28 +25,33 @@ const map = L.map('map', { tapHold: true }).setView([48.65, 9.0], 8);
 // === 2. Basiskarten ===
 const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
+    zIndex: 1,
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
 const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
     maxZoom: 17,
+    zIndex: 1,
     attribution: '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> &copy; OpenStreetMap'
 });
 
 const cyclOsm = L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
     maxZoom: 20,
+    zIndex: 1,
     attribution: '&copy; <a href="https://www.cyclosm.org">CyclOSM</a> &copy; OpenStreetMap'
 });
 
 const esriSatellit = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19,
+    zIndex: 1,
     attribution: '&copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics'
 });
 
 const esriTopo = L.tileLayer(
     'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19,
+    zIndex: 1,
     attribution: '&copy; Esri &mdash; Esri, HERE, Garmin, FAO, NOAA, USGS'
 });
 
@@ -61,7 +66,7 @@ const phBodenLayer = L.layerGroup();
 // SLD erzwingt exakte Farben auf dem Server (pH×10-Werte → Klassen)
 const _phSld = '<?xml version="1.0" encoding="UTF-8"?>' +
     '<StyledLayerDescriptor version="1.0.0" xmlns="http://www.opengis.net/sld">' +
-    '<NamedLayer><Name>phh2o_0-5cm_mean</Name><UserStyle><FeatureTypeStyle><Rule>' +
+    '<NamedLayer><Name>phh2o_0-5cm_mean</Name><UserStyle><Name>default</Name><FeatureTypeStyle><Rule>' +
     '<RasterSymbolizer><ColorMap type="intervals">' +
     '<ColorMapEntry color="#000000" quantity="0"  opacity="0"/>' +
     '<ColorMapEntry color="#800026" quantity="1"  opacity="0.85" label="lt 4.5"/>' +
@@ -77,10 +82,13 @@ const _phSld = '<?xml version="1.0" encoding="UTF-8"?>' +
 
 const bodenPhWms = L.tileLayer.wms('https://maps.isric.org/mapserv?map=/map/phh2o.map', {
     layers:      'phh2o_0-5cm_mean',
+    styles:      'default',
     format:      'image/png',
     transparent: true,
     opacity:     0.75,
     version:     '1.3.0',
+    maxZoom:     20,
+    zIndex:      10,
     SLD_BODY:    _phSld,
     attribution: '© ISRIC SoilGrids 2.0 (CC BY 4.0) – pH H₂O, 0–5 cm'
 });
@@ -96,6 +104,8 @@ const regenRadarDWD = L.tileLayer.wms('https://maps.dwd.de/geoserver/dwd/wms', {
     format: 'image/png',
     transparent: true,
     opacity: 0.5,
+    maxZoom: 20,
+    zIndex: 11,
     attribution: '&copy; DWD'
 });
 
@@ -129,7 +139,12 @@ window.toggleLayerPanel = function() {
 const _baseMaps = {};
 window.setzeBasemap = function(name) {
     Object.values(_baseMaps).forEach(function(m) { if (map.hasLayer(m)) map.removeLayer(m); });
-    if (_baseMaps[name]) map.addLayer(_baseMaps[name]);
+    if (_baseMaps[name]) {
+        map.addLayer(_baseMaps[name]);
+        if (typeof _baseMaps[name].bringToBack === 'function') _baseMaps[name].bringToBack();
+    }
+    if (map.hasLayer(bodenPhWms) && typeof bodenPhWms.bringToFront === 'function') bodenPhWms.bringToFront();
+    if (map.hasLayer(regenRadarDWD) && typeof regenRadarDWD.bringToFront === 'function') regenRadarDWD.bringToFront();
 };
 
 window.toggleLayer = function(id, cb) {
@@ -146,7 +161,12 @@ window.toggleLayer = function(id, cb) {
     };
     const layer = layers[id];
     if (!layer) return;
-    if (cb.checked) map.addLayer(layer); else map.removeLayer(layer);
+    if (cb.checked) {
+        map.addLayer(layer);
+        if (typeof layer.bringToFront === 'function') layer.bringToFront();
+    } else {
+        map.removeLayer(layer);
+    }
     const legEl = document.getElementById('legende-' + id);
     if (legEl) legEl.classList.toggle('aktiv', cb.checked);
     if (id === 'regenmesspunkte') {
@@ -350,27 +370,10 @@ fetch('Straucher und Boden Vegetation.json')
                 return { fillColor: farbe, color: '#555', weight: 0.4, fillOpacity: 0.65 };
             },
             onEachFeature: function(feature, layer) {
-                const p     = feature.properties;
-                const score = (p.sbv01 || 0) + (p.sbv02 || 0) + (p.sbv03 || 0) + (p.sbv04 || 0);
-                const saureText = score >= 8 ? 'Säurezeiger dominant (pH ~3,5–4)' :
-                                  score >= 6 ? 'Säurezeiger häufig (pH ~4–4,5)' :
-                                  score >= 4 ? 'Säurezeiger mäßig (pH ~4,5–5)' :
-                                  score >= 2 ? 'Säurezeiger selten (pH ~5–5,5)' :
-                                               'kaum Säurezeiger (pH >5,5)';
-                layer.bindPopup(
-                    '🌿 <b>Bodenvegetation (BWI 2002)</b><br>' +
-                    'Bundesland: ' + (p.bl_txt  || '–') + '<br>' +
-                    'Waldtyp: '    + (p.wald_txt || '–') + '<br>' +
-                    '<hr style="margin:4px 0;">' +
-                    '<b>' + saureText + '</b><br>' +
-                    '<small style="color:#555;">Schätzung aus Zeigerpflanzen-Deckung (sbv01–04):</small><br>' +
-                    '<small>' +
-                    '🌾 Drahtschmiele: '  + (p.sbv01 || 0) + '<br>' +
-                    '🫐 Heidelbeere: '    + (p.sbv02 || 0) + '<br>' +
-                    '🔴 Preiselbeere: '   + (p.sbv03 || 0) + '<br>' +
-                    '🌸 Heidekraut: '     + (p.sbv04 || 0) + '<br>' +
-                    'Säure-Index: '       + score + ' / 12</small>'
-                );
+                layer.on('click', function(e) {
+                    e.originalEvent.stopPropagation();
+                    oeffneKlickPopup(e.latlng);
+                });
             }
         }).addTo(phBodenLayer);
     })
@@ -528,6 +531,22 @@ function holeBwiAnPunkt(lat, lng) {
     return gefunden;
 }
 
+function holeIsricPhAnPunkt(lat, lng) {
+    if (!map.hasLayer(bodenPhWms)) return Promise.resolve(null);
+    const d = 0.005;
+    const bbox = `${(lat - d).toFixed(6)},${(lng - d).toFixed(6)},${(lat + d).toFixed(6)},${(lng + d).toFixed(6)}`;
+    const url = `https://maps.isric.org/mapserv?map=/map/phh2o.map&SERVICE=WMS&VERSION=1.3.0&REQUEST=GetFeatureInfo&LAYERS=phh2o_0-5cm_mean&QUERY_LAYERS=phh2o_0-5cm_mean&STYLES=default&CRS=EPSG:4326&BBOX=${bbox}&WIDTH=101&HEIGHT=101&I=50&J=50&INFO_FORMAT=application/geo%2Bjson`;
+    return fetch(url)
+        .then(r => r.json())
+        .then(data => {
+            const feat = data && data.features && data.features[0];
+            const raw = feat && feat.properties && Number(feat.properties.pixel_value);
+            if (!raw || raw <= 0) return null;
+            return (raw / 10).toFixed(1);
+        })
+        .catch(() => null);
+}
+
 let _letzterContextMenu = 0;
 
 function oeffneKlickPopup(latlng) {
@@ -539,6 +558,7 @@ function oeffneKlickPopup(latlng) {
 
     const layerTreffer = holeLayerTrefferAnPunkt(lat, lng);
     const bwiTreffer   = holeBwiAnPunkt(lat, lng);
+    const phAktiv      = map.hasLayer(bodenPhWms);
 
     let layerBlock = '';
     if (layerTreffer.length > 0) {
@@ -589,6 +609,35 @@ function oeffneKlickPopup(latlng) {
             </div>`;
     }
 
+    function bauePhBlock(phWertStr, laedt) {
+        if (!phAktiv) return '';
+        if (laedt) {
+            return `
+                <div style="background:#f5f8fc;border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid #4898d0;">
+                    <div style="font-weight:700;font-size:0.82em;color:#1c60c0;">🧪 pH-Bodenwert (ISRIC)</div>
+                    <div style="font-size:0.82em;color:#888;">⏳ pH-Wert wird geladen…</div>
+                </div>`;
+        }
+        if (!phWertStr) return '';
+        const phNum = parseFloat(phWertStr);
+        const phText = phNum < 4.5 ? 'Extrem sauer' :
+                       phNum < 5.0 ? 'Stark sauer' :
+                       phNum < 5.5 ? 'Mäßig sauer' :
+                       phNum < 6.0 ? 'Schwach sauer' :
+                       phNum < 6.5 ? 'Leicht sauer' :
+                       phNum < 7.0 ? 'Neutral' : 'Alkalisch / kalkhaltig';
+        const phFarbe = phNum < 4.5 ? '#800026' :
+                        phNum < 5.0 ? '#bd0026' :
+                        phNum < 5.5 ? '#e04040' :
+                        phNum < 6.0 ? '#d97a70' :
+                        phNum < 7.0 ? '#4898d0' : '#1c60c0';
+        return `
+            <div style="background:#f5f8fc;border-radius:8px;padding:7px 10px;margin-bottom:10px;border-left:3px solid ${phFarbe};">
+                <div style="font-weight:700;font-size:0.82em;color:${phFarbe};margin-bottom:2px;">🧪 pH-Bodenwert (ISRIC · 0–5 cm)</div>
+                <div style="font-size:0.9em;font-weight:700;color:#222;">pH ${phWertStr.replace('.', ',')} <span style="font-weight:500;font-size:0.88em;color:#555;">· ${phText}</span></div>
+            </div>`;
+    }
+
     const hatStartpunkt = ['start_gesetzt', 'berechnung', 'route_fertig'].includes(window.routingStatus);
     const routingButtonsHtml = hatStartpunkt
         ? `
@@ -633,10 +682,11 @@ function oeffneKlickPopup(latlng) {
             ${routingButtonsHtml}
         </div>`;
 
-    const bauePopupHtml = (ortsName, wetterHtml) => `
+    const bauePopupHtml = (ortsName, wetterHtml, phBlockHtml) => `
         <div style="font-family:'Segoe UI',Tahoma,sans-serif; min-width:240px; padding:4px;">
             ${layerBlock}
             ${bwiBlock}
+            ${phBlockHtml}
             <div style="text-align:center; margin-bottom:10px;">
                 <h4 style="margin:0 0 5px 0; color:#222; font-size:1.1em;">📍 ${ortsName}</h4>
                 ${wetterHtml}
@@ -646,7 +696,7 @@ function oeffneKlickPopup(latlng) {
 
     const ladePopup = L.popup()
         .setLatLng(latlng)
-        .setContent(bauePopupHtml('Lade Ort…', '<div style="font-size:0.82em; color:#888;">⏳ Wetterdaten werden geladen…</div>'))
+        .setContent(bauePopupHtml('Lade Ort…', '<div style="font-size:0.82em; color:#888;">⏳ Wetterdaten werden geladen…</div>', bauePhBlock(null, true)))
         .openOn(map);
 
     const wetterUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latR}&longitude=${lngR}&current_weather=true&daily=precipitation_sum&past_days=7&forecast_days=1&timezone=Europe/Berlin`;
@@ -654,8 +704,9 @@ function oeffneKlickPopup(latlng) {
 
     Promise.all([
         fetch(ortsUrl).then(r => r.json()).catch(() => ({})),
-        fetch(wetterUrl).then(r => r.json()).catch(() => ({}))
-    ]).then(([ortsDaten, wetterDaten]) => {
+        fetch(wetterUrl).then(r => r.json()).catch(() => ({})),
+        holeIsricPhAnPunkt(lat, lng)
+    ]).then(([ortsDaten, wetterDaten, phWert]) => {
         let ortsName = "Natur pur";
         if (ortsDaten && ortsDaten.address) {
             ortsName = ortsDaten.address.city || ortsDaten.address.town ||
@@ -676,7 +727,7 @@ function oeffneKlickPopup(latlng) {
         }
 
         if (map.hasLayer(ladePopup)) {
-            ladePopup.setContent(bauePopupHtml(ortsName, wetterBlock));
+            ladePopup.setContent(bauePopupHtml(ortsName, wetterBlock, bauePhBlock(phWert, false)));
         }
     });
 }
