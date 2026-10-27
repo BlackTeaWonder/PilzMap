@@ -1447,6 +1447,7 @@ window.routeKomplettLoeschen = function() {
     window.routenPlaner.setWaypoints([]);
     window._hatEndziel = false;
     window.aktuelleTourDaten = null;
+    if (!window._aufzeichnungAktiv) window._aufzeichnungFundeIds = [];
     window.routingStatus = 'leer';
     window.aktualisiereRoutenBar();
     map.closePopup();
@@ -1624,6 +1625,21 @@ window.oeffneTourSpeichern = function() {
         .openOn(map);
 };
 
+// Pilzfunde der Aufzeichnungssession mit der gespeicherten Route verknüpfen
+async function _verknuepfeFundeMitRoute(routeId) {
+    if (window._aufzeichnungFundeIds.length === 0) return;
+    const { error } = await _supabase.from('pilze')
+        .update({ route_id: routeId })
+        .in('id', window._aufzeichnungFundeIds);
+    if (error) {
+        console.error('Funde konnten nicht mit Route verknüpft werden:', error);
+        alert('⚠️ Tour gespeichert, aber die Pilzfunde konnten nicht mit der Tour verknüpft werden: ' + (error.message || JSON.stringify(error)));
+        return;
+    }
+    window._aufzeichnungFundeIds = [];
+    ladePilzeAusCloud();
+}
+
 window.speichereFinaleTour = async function() {
     const nameEl = document.getElementById('tour-name');
     const name = (nameEl ? nameEl.value.trim() : '') || "Wald-Expedition";
@@ -1656,13 +1672,7 @@ window.speichereFinaleTour = async function() {
 
     if (!error) {
         // Pilzfunde der Aufzeichnungssession mit der Route verknüpfen
-        if (routeData && window._aufzeichnungFundeIds.length > 0) {
-            await _supabase.from('pilze')
-                .update({ route_id: routeData.id })
-                .in('id', window._aufzeichnungFundeIds);
-            window._aufzeichnungFundeIds = [];
-            ladePilzeAusCloud();
-        }
+        if (routeData) await _verknuepfeFundeMitRoute(routeData.id);
         alert("🎉 Tour erfolgreich gespeichert!");
         map.closePopup();
         window.routeKomplettLoeschen();
@@ -1703,13 +1713,7 @@ window.speichereAufzeichnungInline = async function() {
     }]).select('id').single();
 
     if (!error) {
-        if (routeData && window._aufzeichnungFundeIds.length > 0) {
-            await _supabase.from('pilze')
-                .update({ route_id: routeData.id })
-                .in('id', window._aufzeichnungFundeIds);
-            window._aufzeichnungFundeIds = [];
-            ladePilzeAusCloud();
-        }
+        if (routeData) await _verknuepfeFundeMitRoute(routeData.id);
         alert('🎉 Tour erfolgreich gespeichert!');
         window.routeKomplettLoeschen();
     } else {
@@ -2047,12 +2051,13 @@ window.zeigeGespeicherteRoute = async function(id) {
     const btn = document.querySelector(`#re-${id} .btn-zeigen`);
     if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
 
-    const [{ data, error }, { data: funde }] = await Promise.all([
+    const [{ data, error }, { data: funde, error: fundeFehler }] = await Promise.all([
         _supabase.from('wanderrouten').select('*').eq('id', id).single(),
         _supabase.from('pilze').select('id, notiz, geniessbarkeit').eq('route_id', id)
     ]);
 
     if (btn) { btn.textContent = '📍 Anzeigen'; btn.disabled = false; }
+    if (fundeFehler) console.error('Funde der Route konnten nicht geladen werden:', fundeFehler);
     if (error || !data || !data.koordinaten) return;
 
     // Aktiven Eintrag hervorheben
@@ -2143,6 +2148,7 @@ window.starteAufzeichnung = function() {
     window._aufzeichnungPunkte  = [];
     window._aufzeichnungDistanz = 0;
     window._aufzeichnungStart   = Date.now();
+    window._aufzeichnungFundeIds = [];
 
     if (window._aufzeichnungLinie) map.removeLayer(window._aufzeichnungLinie);
     window._aufzeichnungLinie = L.polyline([], {
