@@ -11,7 +11,8 @@ Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einste
 ## Warteliste und Zählung
 
 - `backend/warteliste.gs` – Google Apps Script. Speichert Anmeldungen (mit Bestätigungsmail, Double-Opt-in) und wichtige Klicks in der Google-Tabelle „Waldlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste). Das Blatt „Auswertung“ rechnet Eintragungsquote, Fake-Door-Quote, Preis-Antworten und Kanäle aus.
-- Einrichtung mit dem Projektkonto waldlotse@gmail.com (Absender der Bestätigungsmails; die Tabelle ist mit ihm geteilt): script.google.com → neues Projekt → Code einfügen → `setup` ausführen → als Web-App bereitstellen (Ausführen als: Ich, Zugriff: Jeder). Die Web-App-URL kommt in `CONFIG.waitlist.endpoint` und `CONFIG.trackingEndpoint`.
+- Absender der Bestätigungsmails ist waldlotse@gmx.de: Das Skript läuft im Google-Konto, dem die Tabelle gehört, und verschickt über Gmail „Senden als“ via GMX-Server. Es braucht nur die Berechtigung zum Senden (`gmail.send`), nicht zum Lesen des Postfachs.
+- Einrichtung: Schritte A–F oben in `backend/warteliste.gs`; das Manifest liegt in `backend/appsscript.json`. Die Web-App-URL kommt in `CONFIG.waitlist.endpoint` und `CONFIG.trackingEndpoint`.
 - Mit `?test=1` werden keine Klicks verschickt.
 
 ## Vor dem Teilen

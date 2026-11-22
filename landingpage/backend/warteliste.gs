@@ -7,32 +7,40 @@
  * „Waldlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste).
  * Keine Cookies, keine IP-Adressen (Apps Script gibt sie nicht weiter).
  *
- * Absender der Bestätigungsmails ist das Konto, das die Web-App bereitstellt: das Projektkonto
- * waldlotse@gmail.com. Die Tabelle gehört maylila2000@gmail.com und ist mit dem Projektkonto geteilt.
+ * Absender der Bestätigungsmails ist waldlotse@gmx.de. Das Skript läuft im Google-Konto
+ * maylila2000@gmail.com (dort liegt die Tabelle) und verschickt über die Gmail-Funktion „Senden als“,
+ * die die Mail über den GMX-Server zustellt. Empfänger sehen nur waldlotse@gmx.de.
+ * Das Skript darf dafür nur Mails senden, nicht dein Postfach lesen (Berechtigung gmail.send).
  *
- * Einrichtung (einmalig, am Computer, ca. 5 Minuten):
- *  1. Mit waldlotse@gmail.com angemeldet unter script.google.com ein neues Projekt
- *     „Waldlotse Warteliste“ anlegen, den Inhalt von Code.gs durch diesen Code ersetzen und speichern.
- *  2. Oben die Funktion „setup“ auswählen → Ausführen → Berechtigungen erteilen
- *     (Google warnt „App nicht überprüft“: Erweitert → Weiter zu … – das ist euer eigenes Skript).
- *  3. Bereitstellen → Neue Bereitstellung → Typ „Web-App“
- *       Ausführen als: Ich · Wer hat Zugriff: Jeder → Bereitstellen.
- *  4. Die Web-App-URL (endet auf /exec) in der Landingpage bei CONFIG.waitlist.endpoint
+ * Einrichtung (einmalig, am Computer, ca. 15 Minuten):
+ *  A. GMX (waldlotse@gmx.de): Einstellungen → POP3/IMAP Abruf → „POP3 und IMAP Zugriff erlauben“.
+ *  B. Gmail (maylila2000@gmail.com): Einstellungen → Konten und Import → „Senden als“ →
+ *     „Weitere E-Mail-Adresse hinzufügen“: Name „Waldlotse (Studienprojekt HKA)“, Adresse waldlotse@gmx.de,
+ *     Haken bei „Als Alias behandeln“ entfernen; SMTP-Server mail.gmx.net, Port 587, Nutzername waldlotse@gmx.de,
+ *     GMX-Passwort, TLS. Den Bestätigungscode aus dem GMX-Postfach eintragen.
+ *  C. script.google.com (als maylila2000@gmail.com) → Neues Projekt „Waldlotse Warteliste“ →
+ *     Projekteinstellungen → „appsscript.json-Manifestdatei im Editor anzeigen“ →
+ *     appsscript.json durch die Datei appsscript.json aus diesem Ordner ersetzen, Code.gs durch diesen Code.
+ *  D. Funktion „setup“ ausführen → Berechtigungen erteilen (Google warnt „App nicht überprüft“:
+ *     Erweitert → Weiter zu … – das ist dein eigenes Skript). setup schickt eine Testmail an waldlotse@gmx.de:
+ *     Absender muss dort „Waldlotse (Studienprojekt HKA) <waldlotse@gmx.de>“ sein.
+ *  E. Bereitstellen → Neue Bereitstellung → Typ „Web-App“ · Ausführen als: Ich · Zugriff: Jeder.
+ *  F. Die Web-App-URL (endet auf /exec) in der Landingpage bei CONFIG.waitlist.endpoint
  *     und CONFIG.trackingEndpoint eintragen.
  *  Nach jeder Code-Änderung: Bereitstellen → Bereitstellungen verwalten → Bearbeiten → Version „Neu“.
  *
- * Limit: Ein privates Google-Konto darf über MailApp etwa 100 Mails pro Tag senden.
- * Ist das Kontingent erschöpft, wird der Eintrag trotzdem gespeichert und die Mail
- * am nächsten Morgen nachgeschickt.
+ * Limit: höchstens MAILS_PER_DAY Bestätigungsmails pro Tag. Darüber hinaus wird der Eintrag gespeichert
+ * und die Mail am nächsten Morgen nachgeschickt.
  */
 
 var CONFIG = {
   SHEET_ID: '1MWsyLL0I9YvEzomx5Jd5wJaW1tiwd17iyPLwKbfl3jU',
   SENDER_NAME: 'Waldlotse (Studienprojekt HKA)',
   LANDINGPAGE_URL: 'https://blackteawonder.github.io/PilzMap/landingpage/',
-  CONTACT_MAIL: 'soma1037@h-ka.de',
+  FROM_ADDRESS: 'waldlotse@gmx.de',
+  CONTACT_MAIL: 'waldlotse@gmx.de',
   UNCONFIRMED_DELETE_DAYS: 30,
-  MAIL_RESERVE: 3
+  MAILS_PER_DAY: 90
 };
 
 var SHEET_LIST = 'Warteliste';   // A Eingetragen | B E-Mail | C Mit wem | D Kanal | E Preisangebot | F Zahlungsbereitschaft | G Bestätigungsmail | H Bestätigt | I Token
@@ -55,7 +63,10 @@ function setup() {
   });
   ScriptApp.getProjectTriggers().forEach(function (t) { ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('daily').timeBased().everyDays(1).atHour(7).create();
-  Logger.log('Bereit. Tabelle: ' + ss.getUrl() + ' · Mails heute noch möglich: ' + MailApp.getRemainingDailyQuota());
+  sendMail_(CONFIG.FROM_ADDRESS, 'Waldlotse: Testmail aus dem Warteliste-Skript',
+    'Wenn diese Mail von ' + CONFIG.FROM_ADDRESS + ' kommt, ist „Senden als“ richtig eingerichtet.',
+    '<p>Wenn diese Mail von <b>' + CONFIG.FROM_ADDRESS + '</b> kommt, ist „Senden als“ richtig eingerichtet.</p>');
+  Logger.log('Bereit. Tabelle: ' + ss.getUrl() + ' · Testmail an ' + CONFIG.FROM_ADDRESS + ' verschickt. Bitte dort den Absender prüfen.');
 }
 
 /** Empfängt Anmeldungen (Formulardaten) und Klicks (JSON als Text) von der Landingpage. */
@@ -93,7 +104,7 @@ function signup_(ss, p) {
   list.appendRow([new Date(), cell_(email, 200), pick_(p.gruppe, GROUPS), cell_(p.kanal, 40),
     pick_(p.tarif, PLANS), pick_(p.zahlen, WTP), 'ausstehend', '', token]);
   var row = list.getLastRow();
-  if (MailApp.getRemainingDailyQuota() > CONFIG.MAIL_RESERVE) {
+  if (canSend_()) {
     sendConfirmMail_(email, token);
     list.getRange(row, COL.MAIL).setValue('gesendet');
   }
@@ -127,7 +138,7 @@ function daily() {
   for (var i = data.length - 1; i >= 1; i--) {
     var row = data[i];
     if (!row[COL.CONFIRMED - 1] && row[0] instanceof Date && row[0] < limit) { list.deleteRow(i + 1); continue; }
-    if (row[COL.MAIL - 1] === 'ausstehend' && MailApp.getRemainingDailyQuota() > CONFIG.MAIL_RESERVE) {
+    if (row[COL.MAIL - 1] === 'ausstehend' && canSend_()) {
       sendConfirmMail_(String(row[COL.EMAIL - 1]), String(row[COL.TOKEN - 1]));
       list.getRange(i + 1, COL.MAIL).setValue('gesendet');
     }
@@ -156,7 +167,46 @@ function sendConfirmMail_(email, token) {
     '<p style="font-size:13px;color:#3B5550">Du hast dich nicht eingetragen? Dann ignoriere diese Mail einfach. Ohne Bestätigung löschen wir die Adresse nach ' + CONFIG.UNCONFIRMED_DELETE_DAYS + ' Tagen.</p>' +
     '<p style="font-size:13px;color:#3B5550">Waldlotse ist ein Studienprojekt an der Hochschule Karlsruhe · <a href="' + CONFIG.LANDINGPAGE_URL + '" style="color:#3F6E44">Impressum und Datenschutz</a> · <a href="' + unsubUrl + '" style="color:#3F6E44">Abmelden</a></p>' +
     '</div>';
-  MailApp.sendEmail({ to: email, subject: 'Bitte bestätige deine Anmeldung bei Waldlotse', body: plain, htmlBody: html, name: CONFIG.SENDER_NAME, replyTo: CONFIG.CONTACT_MAIL });
+  sendMail_(email, 'Bitte bestätige deine Anmeldung bei Waldlotse', plain, html);
+}
+
+/** Verschickt über die Gmail-API mit dem „Senden als“-Absender (nur Berechtigung gmail.send). */
+function sendMail_(to, subject, plain, html) {
+  var b64 = function (s) { return Utilities.base64Encode(s, Utilities.Charset.UTF_8).replace(/.{76}/g, '$&\r\n'); };
+  var word = function (s) { return '=?UTF-8?B?' + Utilities.base64Encode(s, Utilities.Charset.UTF_8) + '?='; };
+  var boundary = 'wl' + Utilities.getUuid().replace(/-/g, '');
+  var raw = [
+    'From: ' + word(CONFIG.SENDER_NAME) + ' <' + CONFIG.FROM_ADDRESS + '>',
+    'To: ' + to,
+    'Reply-To: ' + CONFIG.CONTACT_MAIL,
+    'Subject: ' + word(subject),
+    'MIME-Version: 1.0',
+    'Content-Type: multipart/alternative; boundary="' + boundary + '"',
+    '',
+    '--' + boundary,
+    'Content-Type: text/plain; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    b64(plain),
+    '--' + boundary,
+    'Content-Type: text/html; charset=UTF-8',
+    'Content-Transfer-Encoding: base64',
+    '',
+    b64(html),
+    '--' + boundary + '--',
+    ''
+  ].join('\r\n');
+  Gmail.Users.Messages.send({ raw: Utilities.base64EncodeWebSafe(raw, Utilities.Charset.UTF_8) }, 'me');
+}
+
+/** Tageszähler für Bestätigungsmails. */
+function canSend_() {
+  var props = PropertiesService.getScriptProperties();
+  var key = 'mails_' + Utilities.formatDate(new Date(), 'Europe/Berlin', 'yyyy-MM-dd');
+  var n = Number(props.getProperty(key) || 0);
+  if (n >= CONFIG.MAILS_PER_DAY) return false;
+  props.setProperty(key, String(n + 1));
+  return true;
 }
 
 function findRow_(sheet, col, value) {
