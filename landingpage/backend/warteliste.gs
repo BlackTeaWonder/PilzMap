@@ -7,9 +7,12 @@
  * „Waldlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste).
  * Keine Cookies, keine IP-Adressen (Apps Script gibt sie nicht weiter).
  *
+ * Absender der Bestätigungsmails ist das Konto, das die Web-App bereitstellt: das Projektkonto
+ * waldlotse@gmail.com. Die Tabelle gehört maylila2000@gmail.com und ist mit dem Projektkonto geteilt.
+ *
  * Einrichtung (einmalig, am Computer, ca. 5 Minuten):
- *  1. Die Tabelle öffnen → Erweiterungen → Apps Script → den Inhalt von Code.gs durch diesen Code ersetzen
- *     und speichern.
+ *  1. Mit waldlotse@gmail.com angemeldet unter script.google.com ein neues Projekt
+ *     „Waldlotse Warteliste“ anlegen, den Inhalt von Code.gs durch diesen Code ersetzen und speichern.
  *  2. Oben die Funktion „setup“ auswählen → Ausführen → Berechtigungen erteilen
  *     (Google warnt „App nicht überprüft“: Erweitert → Weiter zu … – das ist euer eigenes Skript).
  *  3. Bereitstellen → Neue Bereitstellung → Typ „Web-App“
