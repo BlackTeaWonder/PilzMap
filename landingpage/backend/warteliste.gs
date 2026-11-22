@@ -1,29 +1,30 @@
 /**
- * Waldlotse – Warteliste und Zählung für die Landingpage
+ * Pilzlotse – Warteliste und Zählung für die Landingpage
  * (https://blackteawonder.github.io/PilzMap/landingpage/)
  *
  * Speichert Einträge in die Warteliste mit Double-Opt-in und zählt wichtige Klicks
  * (Besuche, Preisangebote, Umfrage, Vollbild) in der Google-Tabelle
- * „Waldlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste).
+ * „Pilzlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste).
  * Keine Cookies, keine IP-Adressen (Apps Script gibt sie nicht weiter).
  *
- * Absender der Bestätigungsmails ist waldlotse@gmx.de. Das Skript läuft im Google-Konto
+ * Absender der Bestätigungsmails ist pilzlotse@gmx.de. Das Skript läuft im Google-Konto
  * maylila2000@gmail.com (dort liegt die Tabelle) und verschickt über die Gmail-Funktion „Senden als“,
- * die die Mail über den GMX-Server zustellt. Empfänger sehen nur waldlotse@gmx.de.
+ * die die Mail über den GMX-Server zustellt. Empfänger sehen nur pilzlotse@gmx.de.
  * Das Skript darf dafür nur Mails senden, nicht dein Postfach lesen (Berechtigung gmail.send).
  *
  * Einrichtung (einmalig, am Computer, ca. 15 Minuten):
- *  A. GMX (waldlotse@gmx.de): Einstellungen → POP3/IMAP Abruf → „POP3 und IMAP Zugriff erlauben“.
+ *  A. GMX (Konto waldlotse@gmx.de mit der zusätzlichen Adresse pilzlotse@gmx.de):
+ *     Einstellungen → POP3/IMAP Abruf → „POP3 und IMAP Zugriff erlauben“.
  *  B. Gmail (maylila2000@gmail.com): Einstellungen → Konten und Import → „Senden als“ →
- *     „Weitere E-Mail-Adresse hinzufügen“: Name „Waldlotse (Studienprojekt HKA)“, Adresse waldlotse@gmx.de,
- *     Haken bei „Als Alias behandeln“ entfernen; SMTP-Server mail.gmx.net, Port 587, Nutzername waldlotse@gmx.de,
+ *     „Weitere E-Mail-Adresse hinzufügen“: Name „Pilzlotse (Studienprojekt HKA)“, Adresse pilzlotse@gmx.de,
+ *     Haken bei „Als Alias behandeln“ entfernen; SMTP-Server mail.gmx.net, Port 587, Nutzername pilzlotse@gmx.de (Anmeldung geht mit jeder Adresse des Kontos),
  *     GMX-Passwort, TLS. Den Bestätigungscode aus dem GMX-Postfach eintragen.
- *  C. script.google.com (als maylila2000@gmail.com) → Neues Projekt „Waldlotse Warteliste“ →
+ *  C. script.google.com (als maylila2000@gmail.com) → Neues Projekt „Pilzlotse Warteliste“ →
  *     Projekteinstellungen → „appsscript.json-Manifestdatei im Editor anzeigen“ →
  *     appsscript.json durch die Datei appsscript.json aus diesem Ordner ersetzen, Code.gs durch diesen Code.
  *  D. Funktion „setup“ ausführen → Berechtigungen erteilen (Google warnt „App nicht überprüft“:
- *     Erweitert → Weiter zu … – das ist dein eigenes Skript). setup schickt eine Testmail an waldlotse@gmx.de:
- *     Absender muss dort „Waldlotse (Studienprojekt HKA) <waldlotse@gmx.de>“ sein.
+ *     Erweitert → Weiter zu … – das ist dein eigenes Skript). setup schickt eine Testmail an pilzlotse@gmx.de:
+ *     Absender muss dort „Pilzlotse (Studienprojekt HKA) <pilzlotse@gmx.de>“ sein.
  *  E. Bereitstellen → Neue Bereitstellung → Typ „Web-App“ · Ausführen als: Ich · Zugriff: Jeder.
  *  F. Die Web-App-URL (endet auf /exec) in der Landingpage bei CONFIG.waitlist.endpoint
  *     und CONFIG.trackingEndpoint eintragen.
@@ -35,10 +36,10 @@
 
 var CONFIG = {
   SHEET_ID: '1MWsyLL0I9YvEzomx5Jd5wJaW1tiwd17iyPLwKbfl3jU',
-  SENDER_NAME: 'Waldlotse (Studienprojekt HKA)',
+  SENDER_NAME: 'Pilzlotse (Studienprojekt HKA)',
   LANDINGPAGE_URL: 'https://blackteawonder.github.io/PilzMap/landingpage/',
-  FROM_ADDRESS: 'waldlotse@gmx.de',
-  CONTACT_MAIL: 'waldlotse@gmx.de',
+  FROM_ADDRESS: 'pilzlotse@gmx.de',
+  CONTACT_MAIL: 'pilzlotse@gmx.de',
   UNCONFIRMED_DELETE_DAYS: 30,
   MAILS_PER_DAY: 90
 };
@@ -63,7 +64,7 @@ function setup() {
   });
   ScriptApp.getProjectTriggers().forEach(function (t) { ScriptApp.deleteTrigger(t); });
   ScriptApp.newTrigger('daily').timeBased().everyDays(1).atHour(7).create();
-  sendMail_(CONFIG.FROM_ADDRESS, 'Waldlotse: Testmail aus dem Warteliste-Skript',
+  sendMail_(CONFIG.FROM_ADDRESS, 'Pilzlotse: Testmail aus dem Warteliste-Skript',
     'Wenn diese Mail von ' + CONFIG.FROM_ADDRESS + ' kommt, ist „Senden als“ richtig eingerichtet.',
     '<p>Wenn diese Mail von <b>' + CONFIG.FROM_ADDRESS + '</b> kommt, ist „Senden als“ richtig eingerichtet.</p>');
   Logger.log('Bereit. Tabelle: ' + ss.getUrl() + ' · Testmail an ' + CONFIG.FROM_ADDRESS + ' verschickt. Bitte dort den Absender prüfen.');
@@ -120,14 +121,14 @@ function doGet(e) {
     var r = findRow_(list, COL.TOKEN, p.confirm);
     if (r === -1) return page_('Link nicht gefunden', 'Dieser Bestätigungslink ist ungültig oder der Eintrag wurde bereits gelöscht.');
     if (!list.getRange(r, COL.CONFIRMED).getValue()) list.getRange(r, COL.CONFIRMED).setValue(new Date());
-    return page_('Bestätigt!', 'Du stehst jetzt auf der Warteliste von Waldlotse. Wir melden uns, sobald du die App testen kannst.');
+    return page_('Bestätigt!', 'Du stehst jetzt auf der Warteliste von Pilzlotse. Wir melden uns, sobald du die App testen kannst.');
   }
   if (p.unsubscribe) {
     var r2 = findRow_(list, COL.TOKEN, p.unsubscribe);
     if (r2 !== -1) list.deleteRow(r2);
     return page_('Abgemeldet', 'Deine E-Mail-Adresse wurde von der Warteliste gelöscht.');
   }
-  return text_('Waldlotse-Warteliste läuft.');
+  return text_('Pilzlotse-Warteliste läuft.');
 }
 
 /** Täglich: ausstehende Bestätigungsmails nachschicken, unbestätigte Einträge nach X Tagen löschen. */
@@ -151,23 +152,23 @@ function sendConfirmMail_(email, token) {
   var unsubUrl = base + '?unsubscribe=' + encodeURIComponent(token);
   var plain =
     'Hallo,\n\n' +
-    'danke für dein Interesse an Waldlotse, deinem ersten Pilzguide.\n' +
+    'danke für dein Interesse an Pilzlotse, deinem ersten Pilzguide.\n' +
     'Bitte bestätige deine E-Mail-Adresse, damit wir dir schreiben dürfen, sobald du die App testen kannst:\n\n' +
     confirmUrl + '\n\n' +
     'Du hast dich nicht eingetragen? Dann ignoriere diese Mail einfach. Ohne Bestätigung löschen wir die Adresse nach ' + CONFIG.UNCONFIRMED_DELETE_DAYS + ' Tagen.\n\n' +
     'Abmelden: ' + unsubUrl + '\n\n' +
-    'Waldlotse ist ein Studienprojekt an der Hochschule Karlsruhe.\n' +
+    'Pilzlotse ist ein Studienprojekt an der Hochschule Karlsruhe.\n' +
     'Impressum und Datenschutz: ' + CONFIG.LANDINGPAGE_URL + ' (unten auf der Seite)\n' +
     'Kontakt: ' + CONFIG.CONTACT_MAIL;
   var html =
     '<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#15332D;max-width:520px">' +
-    '<p>Hallo,</p><p>danke für dein Interesse an <b>Waldlotse</b>, deinem ersten Pilzguide.</p>' +
+    '<p>Hallo,</p><p>danke für dein Interesse an <b>Pilzlotse</b>, deinem ersten Pilzguide.</p>' +
     '<p>Bitte bestätige deine E-Mail-Adresse, damit wir dir schreiben dürfen, sobald du die App testen kannst:</p>' +
     '<p><a href="' + confirmUrl + '" style="display:inline-block;background:#174336;color:#FFF8DF;padding:12px 20px;border-radius:10px;text-decoration:none">E-Mail-Adresse bestätigen</a></p>' +
     '<p style="font-size:13px;color:#3B5550">Du hast dich nicht eingetragen? Dann ignoriere diese Mail einfach. Ohne Bestätigung löschen wir die Adresse nach ' + CONFIG.UNCONFIRMED_DELETE_DAYS + ' Tagen.</p>' +
-    '<p style="font-size:13px;color:#3B5550">Waldlotse ist ein Studienprojekt an der Hochschule Karlsruhe · <a href="' + CONFIG.LANDINGPAGE_URL + '" style="color:#3F6E44">Impressum und Datenschutz</a> · <a href="' + unsubUrl + '" style="color:#3F6E44">Abmelden</a></p>' +
+    '<p style="font-size:13px;color:#3B5550">Pilzlotse ist ein Studienprojekt an der Hochschule Karlsruhe · <a href="' + CONFIG.LANDINGPAGE_URL + '" style="color:#3F6E44">Impressum und Datenschutz</a> · <a href="' + unsubUrl + '" style="color:#3F6E44">Abmelden</a></p>' +
     '</div>';
-  sendMail_(email, 'Bitte bestätige deine Anmeldung bei Waldlotse', plain, html);
+  sendMail_(email, 'Bitte bestätige deine Anmeldung bei Pilzlotse', plain, html);
 }
 
 /** Verschickt über die Gmail-API mit dem „Senden als“-Absender (nur Berechtigung gmail.send). */
@@ -230,6 +231,6 @@ function page_(title, msg) {
     '<div style="margin:0;padding:1px 0;font-family:Arial,sans-serif;background:#0E1511;color:#E3EADB;min-height:100vh">' +
     '<div style="max-width:520px;margin:12vh auto;padding:28px;background:#162019;border-radius:18px;border:1px solid rgba(197,243,111,.25)">' +
     '<h1 style="font-size:26px;margin:0 0 10px;color:#C5F36F">' + title + '</h1><p style="font-size:16px;line-height:1.6">' + msg + '</p>' +
-    '<p><a href="' + CONFIG.LANDINGPAGE_URL + '" target="_top" style="color:#C5F36F">Zurück zu Waldlotse</a></p></div></div>';
-  return HtmlService.createHtmlOutput(html).setTitle('Waldlotse').addMetaTag('viewport', 'width=device-width, initial-scale=1');
+    '<p><a href="' + CONFIG.LANDINGPAGE_URL + '" target="_top" style="color:#C5F36F">Zurück zu Pilzlotse</a></p></div></div>';
+  return HtmlService.createHtmlOutput(html).setTitle('Pilzlotse').addMetaTag('viewport', 'width=device-width, initial-scale=1');
 }
