@@ -6,7 +6,7 @@ Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einste
 
 ## Inhalt
 
-- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v8 vom 22.11.2026.
+- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v9 vom 22.11.2026. Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
 
 ## Vor dem Teilen
 

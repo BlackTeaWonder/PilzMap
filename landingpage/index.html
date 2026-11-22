@@ -1220,6 +1220,25 @@ svg.leaflet-image-layer.leaflet-interactive path {
 .app .rthumb svg{display:block;width:100%;height:100%}
 
 .app .am-drawer .lwarn{margin:6px 0 0;padding:7px 9px;border-radius:8px;background:#fff6e0;border:1px solid #f0d58a;font-size:11.5px;line-height:1.4;color:#6b5000}
+/* ===== v9: Vollbild auf dem Handy wie eine native App ===== */
+.app .sb .sbx{display:none}
+@media (max-width:820px), (max-height:520px){
+  .demo-ov{padding:0;gap:0;background:#0E1511;align-items:stretch;justify-content:stretch}
+  .demo-ov > .x{display:none}
+  .demo-ov .phone{width:100%;height:100vh;height:100dvh;max-width:none;border:0;border-radius:0;padding:0;background:#0E1511;box-shadow:none}
+  .demo-ov .screen,.demo-ov .app{border-radius:0}
+  .demo-ov .app .sb{height:auto;min-height:44px;padding:env(safe-area-inset-top,0px) max(10px,env(safe-area-inset-right,0px)) 0 max(16px,env(safe-area-inset-left,0px));background:#0E1511}
+  .demo-ov .app .sb > span{display:none}
+  .demo-ov .app .sb .sbl{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.02em}
+  .demo-ov .app .sb .sbl .dt{display:block;width:7px;height:7px;border-radius:50%;background:var(--lime)}
+  .demo-ov .app .sb .sbx{display:inline-flex;align-items:center;gap:6px;min-height:36px;padding:0 13px 0 11px;margin:4px 0;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.06);color:var(--text);font:700 13px/1 inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+  .demo-ov .app .sb .sbx svg{width:15px;height:15px}
+  .demo-ov .app .sb .sbx:active{background:rgba(255,255,255,.14)}
+  .demo-ov .app .sb .sbx:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+  .demo-ov .app .tb{padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+  .demo-ov .app .sheet{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
+}
+.app .sb .sbl{display:none}
 </style>
 </head>
 <body>
@@ -1419,6 +1438,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
    v7: Echte, bedienbare Karte (Leaflet, eingebettet) mit Ebenen wie in der Pilz-Hub-App; Kartenbilder erst nach Klick (Datenschutz);
        Routen auf echten Wanderwegen (OpenStreetMap, BRouter), Schutzgebietsanteil aus den Kartendaten berechnet.
    v8: Kartenbilder robuster (Herkunftsangabe für OpenStreetMap, Ausweich-Karten, klare Meldung bei Sperre); gehostet über GitHub Pages.
+   v9: Vollbild auf dem Handy wie eine native App (randlos, sichere Bildschirmränder, „Schließen“ oben rechts, Zurück-Geste und Escape schließen).
    ------------------------------------------------------------------
    Vor der Veröffentlichung nur diesen CONFIG-Block anpassen:
    - waitlist.endpoint: Formular-Adresse eures Wartelisten-Dienstes (POST, Formulardaten).
@@ -1452,7 +1472,7 @@ const T = { sid: Math.random().toString(36).slice(2, 10), log: [], counts: {} };
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 function track(e, p) {
-  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v8' };
+  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v9' };
   T.log.push(ev); T.counts[e] = (T.counts[e] || 0) + 1;
   if (CONFIG.trackingEndpoint && navigator.sendBeacon) {
     try { navigator.sendBeacon(CONFIG.trackingEndpoint, new Blob([JSON.stringify(ev)], { type: 'application/json' })); } catch (_) {}
@@ -1575,7 +1595,7 @@ function renderTP() {
   const c = T.counts;
   tp.innerHTML = `<b>Testansicht</b> · Kanal: <code>${esc(REF)}</code>
     <table>${ok(!!CONFIG.waitlist.endpoint, 'Wartelisten-Dienst', 'fehlt (Testbetrieb)')}${ok(legalComplete(), 'Impressum-Angaben', 'fehlen')}${ok(!!CONFIG.waitlist.provider, 'Anbieter im Datenschutz', 'fehlt')}${ok(surveyActive(), 'Umfrage-Link', 'aus')}${ok(!!CONFIG.trackingEndpoint, 'Tracking (Preis-Klicks online)', 'aus – nur lokal gezählt')}</table>
-    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
+    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Vollbild geschlossen', 'demo_fullscreen_close'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
     <table>${[['Preis geklickt (gesamt)', 'price_click'], ['· Erste Tour 0 €', 'price:kostenlos'], ['· Zusatzkapitel 2 €', 'price:kapitel'], ['· Saisonpass 20 €', 'price:saisonpass'], ['· Buch beim Verlag', 'price:buch'], ['Von Preis zur Warteliste', 'price_to_waitlist']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}${Object.entries(T.log.filter(x => x.e === 'price_wtp').reduce((m, x) => { const k = x.p.plan + ': ' + x.p.a; m[k] = (m[k] || 0) + 1; return m; }, {})).map(([k, v]) => `<tr><td>· Zahlen? ${esc(k)}</td><td>${v}</td></tr>`).join('')}</table>
     <button type="button" id="tpExport">Protokoll als JSON</button>`;
   $('#tpExport').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ kanal: REF, zaehler: T.counts, ereignisse: T.log }, null, 2)], { type: 'application/json' })); a.download = `waldlotse_landing_${T.sid}.json`; a.click(); };
@@ -2310,7 +2330,7 @@ function dRender(){
   const app=document.getElementById('app'); if(!app) return;
   const view=dView(); const old=app.querySelector('.bd'); const keep = old && app.dataset.view===view ? old.scrollTop : 0;
   const sheet = DS.sheet && SH[DS.sheet] ? `<div class="scrim" data-d="closesheet"><div class="sheet" data-d="none" role="dialog" aria-modal="true" aria-label="Details"><div class="grab"></div>${SH[DS.sheet]()}<button class="abtn t" data-d="closesheet" style="margin-top:6px">Schließen</button></div></div>` : '';
-  app.innerHTML = `<div class="sb"><span>9:41</span><span>LTE<i></i></span></div>${V[view]()}
+  app.innerHTML = `<div class="sb"><span>9:41</span><span>LTE<i></i></span><span class="sbl"><b class="dt" aria-hidden="true"></b>Waldlotse · Vorschau</span><button type="button" class="sbx" data-close-demo aria-label="Vollbild schließen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>Schließen</button></div>${V[view]()}
     <nav class="tb" aria-label="App-Navigation">${TABS.map(([k,l,i])=>{ const on = DS.tab===k; return `<button class="${on?'on':''}" data-d="tab:${k}" aria-current="${on?'page':'false'}"><span class="p">${di(i)}</span>${l}</button>`; }).join('')}</nav>${sheet}`;
   app.dataset.view=view; const nb=app.querySelector('.bd'); if(nb) nb.scrollTop=keep; amFit(); lmAttach();
   if(DS.sheet){ const s=app.querySelector('.sheet .abtn, .sheet button'); if(s && dRender._focus){ s.focus({preventScroll:true}); } }
@@ -2439,12 +2459,35 @@ function setupDemo(){
   document.addEventListener('keydown', e=>{
     const t=e.target;
     if((e.key==='Enter'||e.key===' ') && t.matches && t.matches('#app g[data-d]')){ e.preventDefault(); dAct(t.dataset.d); }
-    if(e.key==='Escape' && !document.getElementById('dlg').open){ if(DS.sheet){ DS.sheet=null; dRender(); } else if(DS.tab==='karte' && DS.drawer){ DS.drawer=false; dRender(); } else if(LM.map){ LM.map.closePopup(); } }
+    if(e.key==='Escape' && !document.getElementById('dlg').open){ if(DS.sheet){ DS.sheet=null; dRender(); } else if(DS.tab==='karte' && DS.drawer){ DS.drawer=false; dRender(); } else if(document.querySelector('#app .leaflet-popup')){ LM.map.closePopup(); } else if(document.getElementById('demoOv').classList.contains('open')){ closeDemo('user'); } }
   });
   const ov=document.getElementById('demoOv'), phone=document.getElementById('phone'), home=document.getElementById('phoneHome');
-  closeDemo = () => { if(!ov.classList.contains('open')) return; home.prepend(phone); ov.classList.remove('open'); document.body.style.overflow=''; };
-  document.querySelectorAll('[data-demo-open]').forEach(b=>b.addEventListener('click',()=>{ ov.appendChild(phone); ov.classList.add('open'); document.body.style.overflow='hidden'; track('demo_fullscreen'); }));
-  document.getElementById('demoClose').addEventListener('click', closeDemo);
+  /* v9: Vollbild wie eine App. Schließen per Knopf oben rechts, Escape oder Zurück-Geste des Handys. */
+  const theme=document.querySelector('meta[name="theme-color"]'), themeHome=theme?theme.content:'';
+  let opener=null;
+  const openDemo = (btn) => {
+    if(ov.classList.contains('open')) return;
+    opener=btn||null; ov.appendChild(phone); ov.classList.add('open'); document.body.style.overflow='hidden';
+    if(theme) theme.content='#0E1511';
+    try{ history.pushState({ wlDemo:1 }, ''); }catch(_){}
+    if(window.LM && LM.map) setTimeout(()=>LM.map.invalidateSize(),50);
+    const x=phone.querySelector('.sbx'); if(x && getComputedStyle(x).display!=='none') x.focus({ preventScroll:true });
+    track('demo_fullscreen');
+  };
+  closeDemo = (how) => {
+    if(!ov.classList.contains('open')) return;
+    home.prepend(phone); ov.classList.remove('open'); document.body.style.overflow='';
+    if(theme) theme.content=themeHome;
+    if(how!=='pop' && history.state && history.state.wlDemo){ try{ how==='user' ? history.back() : history.replaceState(null,''); }catch(_){} }
+    if(window.LM && LM.map) setTimeout(()=>LM.map.invalidateSize(),50);
+    if(how!=='pop' && how!=='user') return;
+    if(opener) opener.focus({ preventScroll:true });
+    track('demo_fullscreen_close',{ how });
+  };
+  window.addEventListener('popstate', ()=>{ if(ov.classList.contains('open')) closeDemo('pop'); });
+  document.querySelectorAll('[data-demo-open]').forEach(b=>b.addEventListener('click',()=>openDemo(b)));
+  document.getElementById('demoClose').addEventListener('click', ()=>closeDemo('user'));
+  document.addEventListener('click', e=>{ if(e.target.closest('[data-close-demo]')){ e.preventDefault(); closeDemo('user'); } });
 }
 document.addEventListener('DOMContentLoaded', setupDemo);
 
