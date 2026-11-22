@@ -8,6 +8,12 @@ Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einste
 
 - `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v9 vom 22.11.2026. Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
 
+## Warteliste und Zählung
+
+- `backend/warteliste.gs` – Google Apps Script. Speichert Anmeldungen (mit Bestätigungsmail, Double-Opt-in) und wichtige Klicks in der Google-Tabelle „Waldlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste). Das Blatt „Auswertung“ rechnet Eintragungsquote, Fake-Door-Quote, Preis-Antworten und Kanäle aus.
+- Einrichtung: Tabelle öffnen → Erweiterungen → Apps Script → Code einfügen → `setup` ausführen → als Web-App bereitstellen (Ausführen als: Ich, Zugriff: Jeder). Die Web-App-URL kommt in `CONFIG.waitlist.endpoint` und `CONFIG.trackingEndpoint`.
+- Mit `?test=1` werden keine Klicks verschickt.
+
 ## Vor dem Teilen
 
 Im Skript den Block `CONFIG` ergänzen:
