@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'www/**'
+      - 'landingpage/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 permissions:
@@ -29,9 +31,15 @@ jobs:
 
       - uses: actions/configure-pages@v5
 
+      - name: Seite zusammenstellen (App + Landingpage)
+        run: |
+          mkdir -p _site/landingpage
+          cp -r www/. _site/
+          cp landingpage/index.html _site/landingpage/index.html
+
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: www/
+          path: _site/
 
       - id: deployment
         uses: actions/deploy-pages@v4
