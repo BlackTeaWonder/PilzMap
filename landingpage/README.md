@@ -6,7 +6,7 @@ Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einste
 
 ## Inhalt
 
-- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v10 vom 22.11.2026 (Name: Pilzlotse, vorher Waldlotse). Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
+- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v15 vom 24.11.2026 (Name: Pilzlotse, vorher Waldlotse). Neu seit v10: Hinweis, dass die Handy-Vorschau klickbar ist, Umfrage deutlicher hervorgehoben, Lernen als Übersicht (Kapitel, Meine Lesezeichen, Meine Bücher, Wissensgraph), Pilz-Notruf mit Warndreieck nur unter Beratung. Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
 
 ## Warteliste und Zählung
 

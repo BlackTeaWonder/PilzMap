@@ -1239,16 +1239,102 @@ svg.leaflet-image-layer.leaflet-interactive path {
   .demo-ov .app .sheet{padding-bottom:max(16px,env(safe-area-inset-bottom,0px))}
 }
 .app .sb .sbl{display:none}
+/* ===== v11: Klickdummy als interaktiv erkennbar, Umfrage hervorgehoben ===== */
+@keyframes wlPulse{0%{box-shadow:0 0 0 0 rgba(197,243,111,.55)}70%{box-shadow:0 0 0 12px rgba(197,243,111,0)}100%{box-shadow:0 0 0 0 rgba(197,243,111,0)}}
+@keyframes wlSpot{0%,100%{box-shadow:0 0 0 6px rgba(197,243,111,.06),0 30px 80px rgba(0,0,0,.55)}50%{box-shadow:0 0 0 14px rgba(197,243,111,.28),0 30px 80px rgba(0,0,0,.55)}}
+.sbar-top{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;gap:12px 16px;flex-wrap:wrap;padding:10px 52px 10px 16px;background:var(--lime);color:var(--ink);font-size:15px;line-height:1.35;text-align:center}
+.sbar-top p{margin:0;color:var(--ink)}
+.sbar-top a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 14px;border-radius:999px;background:var(--ink);color:var(--lime);font-weight:700;text-decoration:none;white-space:nowrap}
+.sbar-top a:hover{background:#000}
+.sbar-top .x{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;border-radius:8px;background:transparent;color:var(--ink);font-size:24px;line-height:1;cursor:pointer}
+.sbar-top .x:focus-visible,.sbar-top a:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.lnav a.nav-survey{color:var(--ink);background:var(--lime);padding:6px 14px;border-radius:999px}
+.lnav a.nav-survey:hover{color:var(--ink);background:#D4FA86}
+.hero-links{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 2px}
+.hero-links .hlk{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 18px;border-radius:999px;font:inherit;font-weight:700;font-size:15px;text-decoration:none;cursor:pointer}
+.hero-links .hlk.demo{background:rgba(197,243,111,.1);border:1.5px solid var(--lime);color:var(--lime)}
+.hero-links .hlk.demo:hover{background:rgba(197,243,111,.18)}
+.hero-links .hlk.srv{background:rgba(227,234,219,.06);border:1.5px solid var(--line2);color:var(--text)}
+.hero-links .hlk.srv:hover{border-color:var(--lime);color:var(--lime)}
+.hero-links .hlk svg{width:16px;height:16px}
+.survey-card{display:flex;align-items:center;gap:14px 16px;margin-top:16px;padding:16px 18px;border-radius:var(--r);background:linear-gradient(135deg,rgba(197,243,111,.13),rgba(197,243,111,.04));border:1px solid rgba(197,243,111,.42)}
+.survey-card .ic{flex:none;font-size:24px;line-height:1}
+.survey-card p{margin:0;flex:1;font-size:15px;color:var(--text)}
+.survey-card p b{color:var(--lime)}
+.survey-card .btn{flex:none;min-height:44px;padding:0 18px}
+.ph-badge{display:inline-flex;align-items:center;gap:9px;margin:0 0 16px;padding:8px 16px;border-radius:999px;background:rgba(197,243,111,.1);border:1px solid rgba(197,243,111,.5);color:var(--lime);font-size:14px;font-weight:700}
+.ph-badge .dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--lime);animation:wlPulse 1.8s ease-out infinite}
+.ph-cap{color:var(--text)}
+.ph-cap b{color:var(--lime)}
+.phone.spot{animation:wlSpot 1s ease-in-out 2}
+.app .abtn.coach{animation:wlPulse 1.6s ease-out infinite}
+.app .coachtip{display:flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;font-weight:700;color:var(--lime)}
+.app .srvrow{border-color:rgba(197,243,111,.4);background:linear-gradient(135deg,rgba(197,243,111,.12),#131D17)}
+.survey{border:1.5px solid rgba(197,243,111,.5);box-shadow:0 0 0 6px rgba(197,243,111,.05)}
+.survey .why{margin-top:10px;font-size:15px;color:var(--muted)}
+.survey .btn{min-height:52px;padding:0 26px;font-size:17px}
+@media (max-width:560px){
+  .sbar-top{font-size:14px;padding:9px 46px 9px 12px}
+  .sbar-top .long{display:none}
+  .survey-card{flex-direction:column;align-items:stretch;text-align:left}
+  .survey-card .btn{width:100%}
+  .hero-links .hlk{flex:1 1 100%;justify-content:center}
+}
+/* ===== v12: Notruf im Klickdummy, Lernen als Kachelliste ===== */
+.app .hd .act.sos{width:auto;height:32px;padding:0 9px;gap:4px;display:inline-flex;align-items:center;border-radius:999px;background:#D23B2E;color:#fff;margin-right:-4px;box-shadow:0 2px 10px rgba(210,59,46,.35)}
+.app .hd .act.sos svg{width:15px;height:15px}
+.app .hd .act.sos:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.app .row2.nsw .ic{background:rgba(197,243,111,.12);color:var(--lime)}
+/* ===== v13: ein Notruf-Symbol, Lernen-Übersicht, Bücher, Wissensgraph ===== */
+.app .hd .act.sos{width:34px;height:34px;padding:0;gap:0;justify-content:center;border-radius:50%}
+.app .hd .act.sos svg{width:22px;height:22px}
+.app .nth{display:flex;align-items:center;gap:10px}
+.app .nth .nti{flex:none;width:34px;height:34px;border-radius:50%;background:#D23B2E;color:#fff;display:grid;place-items:center}
+.app .nth .nti svg{width:22px;height:22px}
+.app .row2.sosrow{border-color:rgba(232,130,107,.5);background:linear-gradient(135deg,rgba(210,59,46,.18),#131D17)}
+.app .row2.sosrow .ic{background:#D23B2E;color:#fff}
+.app .row2.sosrow .ic svg{width:22px;height:22px}
+.app .row2.lt{padding:14px 12px}
+.app .row2.lt .ic{width:44px;height:44px;border-radius:12px}
+.app .row2.lt .ic svg{width:21px;height:21px}
+.app .row2.lt b{font-size:16px}
+.app .bookc{display:flex;gap:12px;align-items:center;background:#131D17;border:1px solid var(--line2);border-radius:14px;padding:12px}
+.app .bookc .cover{flex:none;width:74px;height:100px;border-radius:6px 10px 10px 6px;background:linear-gradient(160deg,#2A5A3F,#15332D);border-left:5px solid #0E2A21;display:flex;flex-direction:column;justify-content:space-between;padding:7px 6px;box-shadow:0 6px 16px rgba(0,0,0,.4)}
+.app .bookc .cover span{font-size:9.5px;font-weight:700;line-height:1.2;color:#FFF8DF}
+.app .bookc .cover svg{width:44px;height:44px;align-self:center}
+.app .bookc h3{font-size:16px;margin:2px 0 2px}
+.app .wg{background:#0F1712;border:1px solid var(--line2);border-radius:14px;padding:6px}
+.app .wg svg{display:block;width:100%;height:auto}
+.app .wg .nl{font:700 11.5px/1 var(--f)}
+.app .wg .el{font:600 8.5px/1 var(--f);fill:var(--muted);stroke:#0F1712;stroke-width:3.5px;stroke-linejoin:round;paint-order:stroke}
+.app .wleg{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:11px;color:var(--muted)}
+.app .wleg span{display:inline-flex;align-items:center;gap:5px}
+.app .wleg i{width:10px;height:10px;border-radius:50%}
+.app .wleg i.o{border:1.5px dashed #E2A67C;background:none}
+/* ===== v14: Warndreieck statt Rundknopf, nur unter Beratung ===== */
+.app .row2.sosrow .ic{background:rgba(210,59,46,.14)}
+.app .row2.sosrow .ic svg{width:30px;height:30px}
+.app .nth .nti{background:none;width:34px;height:34px}
+.app .nth .nti svg{width:32px;height:32px}
+/* ===== v15: Pilz-Notruf als schmale Zeile ===== */
+.app .row2.sosrow{padding:6px 10px;gap:8px;border-radius:10px;background:rgba(210,59,46,.1);border-color:rgba(232,130,107,.35)}
+.app .row2.sosrow>svg:first-child{flex:none;width:22px;height:22px}
+.app .row2.sosrow .tx{display:flex;align-items:baseline;gap:8px}
+.app .row2.sosrow .tx b{display:inline;font-size:13px}
+.app .row2.sosrow .tx span{display:inline;font-size:12px}
+.app .row2.sosrow>svg:last-child{width:15px;height:15px;color:var(--muted)}
 </style>
 </head>
 <body>
+
+<div class="sbar-top" data-survey role="region" aria-label="Hinweis zur Umfrage"><p><b>Unsere Umfrage läuft:</b> <span class="long">Wie steigst du ins Pilzesammeln ein? </span>Anonym, rund 10 Minuten.</p><a data-survey-link data-src="topbar" target="_blank" rel="noopener">Jetzt mitmachen <span aria-hidden="true">→</span></a><button type="button" class="x" data-close-sbar aria-label="Hinweis schließen">×</button></div>
 
 <header class="hero" id="top">
   <div class="forest" aria-hidden="true"><svg viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid slice"><defs><radialGradient id="moon" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#E9F0D8" stop-opacity=".22"/><stop offset=".55" stop-color="#C9D6B4" stop-opacity=".10"/><stop offset="1" stop-color="#C9D6B4" stop-opacity="0"/></radialGradient><linearGradient id="fog" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0C120E" stop-opacity="0"/><stop offset="1" stop-color="#0C120E" stop-opacity="1"/></linearGradient></defs><circle cx="560" cy="230" r="190" fill="url(#moon)"/><circle cx="560" cy="230" r="70" fill="#9FAE93" opacity=".10"/><g><polygon fill="#1A281E" opacity="0.9" points="-47,980 -163,953 -138,890 -94,869 -114,827 -81,806 -89,764 -67,743 -65,701 -54,680 -40,638 -26,680 -15,701 -13,743 9,764 1,806 34,827 14,869 58,890 83,953 -33,980"/><polygon fill="#1A281E" opacity="0.9" points="24,980 -77,956 -56,901 -17,883 -34,846 -5,829 -13,792 6,774 9,737 18,719 30,682 42,719 51,737 54,774 73,792 65,829 94,846 77,883 116,901 137,956 36,980"/><polygon fill="#1A281E" opacity="0.9" points="92,980 -30,951 -4,885 43,863 22,818 57,797 48,752 71,730 74,685 86,664 100,619 114,664 126,685 129,730 152,752 143,797 178,818 157,863 204,885 230,951 108,980"/><polygon fill="#1A281E" opacity="0.9" points="164,980 72,958 92,908 127,892 111,858 138,842 131,808 148,792 150,758 159,742 170,708 181,742 190,758 192,792 209,808 202,842 229,858 213,892 248,908 268,958 176,980"/><polygon fill="#1A281E" opacity="0.9" points="234,980 140,958 160,907 196,890 180,855 207,839 200,804 218,788 220,753 229,736 240,702 251,736 260,753 262,788 280,804 273,839 300,855 284,890 320,907 340,958 246,980"/><polygon fill="#1A281E" opacity="0.9" points="301,980 167,948 196,875 247,851 224,802 263,778 253,729 279,705 281,656 294,632 310,583 326,632 339,656 341,705 367,729 357,778 396,802 373,851 424,875 453,948 319,980"/><polygon fill="#1A281E" opacity="0.9" points="374,980 278,957 298,905 335,888 319,853 346,836 339,801 358,783 360,748 369,731 380,696 391,731 400,748 402,783 421,801 414,836 441,853 425,888 462,905 482,957 386,980"/><polygon fill="#1A281E" opacity="0.9" points="442,980 323,952 348,887 394,866 374,822 408,801 399,757 422,736 425,692 436,671 450,627 464,671 475,692 478,736 501,757 492,801 526,822 506,866 552,887 577,952 458,980"/><polygon fill="#1A281E" opacity="0.9" points="511,980 373,947 402,872 455,847 432,797 471,772 461,722 488,697 491,646 504,622 520,571 536,622 549,646 552,697 579,722 569,772 608,797 585,847 638,872 667,947 529,980"/><polygon fill="#1A281E" opacity="0.9" points="584,980 491,958 511,908 547,891 531,857 557,841 551,807 568,790 570,756 579,740 590,706 601,740 610,756 612,790 629,807 623,841 649,857 633,891 669,908 689,958 596,980"/><polygon fill="#1A281E" opacity="0.9" points="652,980 520,949 548,877 598,854 576,806 614,782 604,734 629,711 632,663 645,639 660,591 675,639 688,663 691,711 716,734 706,782 744,806 722,854 772,877 800,949 668,980"/><polygon fill="#1A281E" opacity="0.9" points="723,980 617,955 640,897 680,878 662,839 693,820 685,782 705,763 707,724 718,705 730,666 742,705 753,724 755,763 775,782 767,820 798,839 780,878 820,897 843,955 737,980"/><polygon fill="#1A281E" opacity="0.9" points="794,980 703,958 723,909 757,893 742,859 768,843 761,810 779,794 781,760 789,744 800,711 811,744 819,760 821,794 839,810 832,843 858,859 843,893 877,909 897,958 806,980"/><polygon fill="#1A281E" opacity="0.9" points="864,980 768,957 789,906 825,889 809,854 836,837 829,802 848,785 850,750 859,733 870,698 881,733 890,750 892,785 911,802 904,837 931,854 915,889 951,906 972,957 876,980"/><polygon fill="#1A281E" opacity="0.9" points="932,980 806,950 833,882 881,860 860,814 896,792 887,746 911,723 913,677 925,655 940,609 955,655 967,677 969,723 993,746 984,792 1020,814 999,860 1047,882 1074,950 948,980"/><polygon fill="#1A281E" opacity="0.9" points="1002,980 878,951 904,883 952,861 931,816 966,794 957,748 981,726 984,681 995,659 1010,613 1025,659 1036,681 1039,726 1063,748 1054,794 1089,816 1068,861 1116,883 1142,951 1018,980"/><polygon fill="#1A281E" opacity="0.9" points="1074,980 980,958 1000,907 1036,890 1020,856 1047,839 1040,805 1058,788 1060,754 1069,737 1080,703 1091,737 1100,754 1102,788 1120,805 1113,839 1140,856 1124,890 1160,907 1180,958 1086,980"/><polygon fill="#1A281E" opacity="0.9" points="1143,980 1034,954 1058,895 1099,876 1081,836 1112,817 1104,777 1125,758 1127,718 1137,699 1150,659 1163,699 1173,718 1175,758 1196,777 1188,817 1219,836 1201,876 1242,895 1266,954 1157,980"/><polygon fill="#1A281E" opacity="0.9" points="1214,980 1118,957 1138,905 1175,888 1159,853 1186,836 1179,801 1198,784 1200,749 1209,732 1220,697 1231,732 1240,749 1242,784 1261,801 1254,836 1281,853 1265,888 1302,905 1322,957 1226,980"/><polygon fill="#1A281E" opacity="0.9" points="1281,980 1146,948 1175,874 1226,850 1203,800 1242,776 1232,727 1258,703 1261,653 1274,629 1290,579 1306,629 1319,653 1322,703 1348,727 1338,776 1377,800 1354,850 1405,874 1434,948 1299,980"/><polygon fill="#1A281E" opacity="0.9" points="1352,980 1228,951 1254,883 1302,861 1281,815 1316,793 1307,747 1331,725 1334,680 1345,658 1360,612 1375,658 1386,680 1389,725 1413,747 1404,793 1439,815 1418,861 1466,883 1492,951 1368,980"/><polygon fill="#1A281E" opacity="0.9" points="1424,980 1331,958 1351,907 1386,891 1371,857 1397,840 1390,806 1408,790 1410,756 1419,739 1430,705 1441,739 1450,756 1452,790 1470,806 1463,840 1489,857 1474,891 1509,907 1529,958 1436,980"/><polygon fill="#1A281E" opacity="0.9" points="1491,980 1355,948 1384,873 1436,849 1413,799 1452,775 1442,725 1468,700 1471,650 1484,626 1500,576 1516,626 1529,650 1532,700 1558,725 1548,775 1587,799 1564,849 1616,873 1645,948 1509,980"/><polygon fill="#1A281E" opacity="0.9" points="1564,980 1465,957 1486,903 1524,886 1507,850 1535,832 1528,796 1547,779 1549,743 1558,725 1570,689 1582,725 1591,743 1593,779 1612,796 1605,832 1633,850 1616,886 1654,903 1675,957 1576,980"/><polygon fill="#1A281E" opacity="0.9" points="1633,980 1526,955 1549,896 1590,877 1572,838 1602,819 1594,780 1615,761 1617,721 1627,702 1640,663 1653,702 1663,721 1665,761 1686,780 1678,819 1708,838 1690,877 1731,896 1754,955 1647,980"/></g><g><polygon fill="#14201A" opacity="1" points="-72,1000 -255,957 -216,857 -146,825 -177,758 -124,725 -138,658 -103,626 -99,559 -81,526 -60,459 -39,526 -21,559 -17,626 18,658 4,725 57,758 26,825 96,857 135,957 -48,1000"/><polygon fill="#14201A" opacity="1" points="38,1000 -144,957 -106,857 -36,825 -67,758 -14,726 -28,659 7,626 11,559 29,527 50,460 71,527 89,559 93,626 128,659 114,726 167,758 136,825 206,857 244,957 62,1000"/><polygon fill="#14201A" opacity="1" points="149,1000 -30,958 8,860 76,829 46,763 97,731 84,666 118,634 122,568 139,537 160,471 181,537 198,568 202,634 236,666 223,731 274,763 244,829 312,860 350,958 171,1000"/><polygon fill="#14201A" opacity="1" points="261,1000 128,968 156,896 207,872 185,823 223,799 213,750 239,727 242,678 254,654 270,605 286,654 298,678 301,727 327,750 317,799 355,823 333,872 384,896 412,968 279,1000"/><polygon fill="#14201A" opacity="1" points="369,1000 190,958 228,861 297,829 266,764 317,732 304,667 338,635 342,570 359,538 380,473 401,538 418,570 422,635 456,667 443,732 494,764 463,829 532,861 570,958 391,1000"/><polygon fill="#14201A" opacity="1" points="479,1000 300,958 338,860 406,829 376,763 427,731 414,666 448,634 452,568 469,537 490,471 511,537 528,568 532,634 566,666 553,731 604,763 574,829 642,860 680,958 501,1000"/><polygon fill="#14201A" opacity="1" points="1070,1000 907,962 941,873 1004,844 976,785 1023,756 1011,696 1042,667 1045,608 1061,579 1080,519 1099,579 1115,608 1118,667 1149,696 1137,756 1184,785 1156,844 1219,873 1253,962 1090,1000"/><polygon fill="#14201A" opacity="1" points="1182,1000 1049,969 1077,897 1128,873 1105,824 1143,801 1134,752 1159,729 1162,680 1174,657 1190,608 1206,657 1218,680 1221,729 1246,752 1237,801 1275,824 1252,873 1303,897 1331,969 1198,1000"/><polygon fill="#14201A" opacity="1" points="1291,1000 1143,965 1174,885 1231,859 1206,805 1248,779 1237,724 1265,698 1269,644 1283,618 1300,564 1317,618 1331,644 1335,698 1363,724 1352,779 1394,805 1369,859 1426,885 1457,965 1309,1000"/><polygon fill="#14201A" opacity="1" points="1402,1000 1269,969 1297,897 1348,873 1326,825 1364,801 1354,753 1379,729 1382,681 1395,657 1410,609 1425,657 1438,681 1441,729 1466,753 1456,801 1494,825 1472,873 1523,897 1551,969 1418,1000"/><polygon fill="#14201A" opacity="1" points="1509,1000 1332,958 1370,862 1437,831 1407,766 1458,735 1445,670 1479,639 1482,574 1499,543 1520,478 1541,543 1558,574 1561,639 1595,670 1582,735 1633,766 1603,831 1670,862 1708,958 1531,1000"/><polygon fill="#14201A" opacity="1" points="1617,1000 1414,952 1457,842 1535,806 1501,732 1559,696 1544,621 1583,585 1587,511 1606,475 1630,401 1654,475 1673,511 1677,585 1716,621 1701,696 1759,732 1725,806 1803,842 1846,952 1643,1000"/></g><g><polygon fill="#0E1712" opacity="1" points="17,1060 -338,976 -262,783 -126,720 -187,590 -85,527 -111,396 -43,333 -36,203 -2,140 40,10 82,140 116,203 123,333 191,396 165,527 267,590 206,720 342,783 418,976 63,1060"/><polygon fill="#0E1712" opacity="1" points="1536,1060 1164,972 1243,770 1386,704 1322,567 1429,501 1402,365 1473,299 1481,162 1516,96 1560,-40 1604,96 1639,162 1647,299 1718,365 1691,501 1798,567 1734,704 1877,770 1956,972 1584,1060"/><polygon fill="#101A14" opacity="1" points="232,1060 -45,994 14,844 120,794 73,693 153,643 132,542 185,493 191,391 218,342 250,240 282,342 309,391 315,493 368,542 347,643 427,693 380,794 486,844 545,994 268,1060"/><polygon fill="#101A14" opacity="1" points="1361,1060 1070,991 1132,833 1244,781 1194,675 1278,623 1256,516 1312,465 1318,358 1346,307 1380,200 1414,307 1442,358 1448,465 1504,516 1482,623 1566,675 1516,781 1628,833 1690,991 1399,1060"/></g><rect y="620" width="1600" height="440" fill="url(#fog)"/></svg></div>
   <div class="wrap">
     <div class="top">
       <a class="brand" href="#top" aria-label="Pilzlotse – zum Seitenanfang"><svg viewBox="0 0 108 108" role="img" aria-hidden="true"><defs><linearGradient id="bgC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A5A3F"/><stop offset="1" stop-color="#15332D"/></linearGradient><linearGradient id="beamC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF8DF" stop-opacity=".15"/><stop offset=".55" stop-color="#FFF8DF" stop-opacity=".6"/><stop offset="1" stop-color="#F4EDAC" stop-opacity="1"/></linearGradient></defs><rect width="108" height="108" fill="url(#bgC)"/><polygon points="14,40 8.8,57.68 11.2,57.68 6.4,75.36 9.2,75.36 4,92 24,92 18.8,75.36 21.6,75.36 16.8,57.68 19.2,57.68" fill="#22503A"/><polygon points="94,40 88.8,57.68 91.2,57.68 86.4,75.36 89.2,75.36 84,92 104,92 98.8,75.36 101.6,75.36 96.8,57.68 99.2,57.68" fill="#22503A"/><polygon points="26,46 21.32,60.96 23.48,60.96 19.16,75.92 21.68,75.92 17,90 35,90 30.32,75.92 32.84,75.92 28.52,60.96 30.68,60.96" fill="#3F6E44"/><polygon points="82,46 77.32,60.96 79.48,60.96 75.16,75.92 77.68,75.92 73,90 91,90 86.32,75.92 88.84,75.92 84.52,60.96 86.68,60.96" fill="#3F6E44"/><path d="M47,-2 L61,-2 L80,84 Q54,91 28,84 Z" fill="url(#beamC)"/><path d="M41,70 C41,59.5 47,54 54,54 C61,54 67,59.5 67,70 Q67,72 65,72 L43,72 Q41,72 41,70 Z M49.5,74.5 L58.5,74.5 L59.5,82 Q59.5,84 57.5,84 L50.5,84 Q48.5,84 48.5,82 Z" fill="#15332D" transform="translate(54 70) scale(.9) translate(-54 -72)"/></svg><span><b>Pilzlotse</b><span>dein erster Pilzguide</span></span></a>
-      <nav class="lnav" aria-label="Seitenbereiche"><a href="#ablauf">Ablauf</a><a href="#lernen">Lernen</a><a href="#preise">Preise</a><a href="#fragen">Fragen</a></nav>
+      <nav class="lnav" aria-label="Seitenbereiche"><a href="#ablauf">Ablauf</a><a href="#lernen">Lernen</a><a href="#preise">Preise</a><a href="#fragen">Fragen</a><a href="#umfrage" class="nav-survey" data-survey>Umfrage</a></nav>
       <span class="tag">Studienprojekt der Hochschule Karlsruhe</span>
     </div>
 
@@ -1257,6 +1343,10 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="eyebrow">In Entwicklung · für die nächste Pilzsaison</span>
         <h1>Deine erste Pilztour.<br>Schritt für Schritt.</h1>
         <p class="lead">Pilzlotse führt dich wie eine Checkliste durch deine erste Tour: mit einem Kapitel aus einem bewährten Pilzbuch lernen, einen passenden Wald finden, Pilze entdecken und zum Schluss deine Funde bei einer Pilzberatung prüfen lassen.</p>
+        <div class="hero-links">
+          <button type="button" class="hlk demo" data-try-demo><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>App-Vorschau ausprobieren</button>
+          <a class="hlk srv" data-survey data-survey-link data-src="hero" target="_blank" rel="noopener"><span aria-hidden="true">📝</span>Zur Umfrage · 10 Min.</a>
+        </div>
 
         <div class="wl" id="warteliste">
           <form id="wlForm" novalidate>
@@ -1281,13 +1371,14 @@ svg.leaflet-image-layer.leaflet-interactive path {
           </form>
           <div class="ok" id="wlOk" hidden tabindex="-1"></div>
         </div>
-        <p class="survey-hint" data-survey>Noch nicht sicher? <a href="#umfrage">Hilf uns mit unserer Umfrage</a> – anonym, rund 10 Minuten.</p>
+        <div class="survey-card" data-survey><span class="ic" aria-hidden="true">📝</span><p><b>Noch nicht sicher?</b> Hilf uns mit unserer Umfrage – anonym, rund 10 Minuten, auch ohne Pilzerfahrung.</p><a class="btn btn-ghost" data-survey-link data-src="hint" target="_blank" rel="noopener">Zur Umfrage</a></div>
       </div>
 
       <div class="phone-col" id="phoneHome">
+        <p class="ph-badge"><span class="dot" aria-hidden="true"></span>Interaktive Vorschau – klick dich durch</p>
         <div class="phone" id="phone"><div class="screen"><div class="app" id="app" aria-label="Klickbare Vorschau der Pilzlotse-App"></div></div></div>
-        <p class="ph-cap">Klick dich durch deine erste Tour – vom ersten Kapitel bis zur Pilzberatung.</p>
-        <button type="button" class="btn btn-ghost demo-cta" data-demo-open>App im Vollbild ansehen</button>
+        <p class="ph-cap"><b>Alles im Handy ist klickbar:</b> Kapitel lesen, Wald finden, Route planen, Funde eintragen – bis zur Pilzberatung.</p>
+        <button type="button" class="btn btn-ghost demo-cta" data-demo-open>▶ App im Vollbild ausprobieren</button>
       </div>
     </div>
   </div>
@@ -1378,6 +1469,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
         <span class="eyebrow">Mitmachen</span>
         <h2>Hilf uns, Pilzlotse richtig zu bauen</h2>
         <p>Wir wollen wissen, wie du ins Pilzesammeln einsteigen würdest und was dir dabei helfen würde. Deine Antworten fließen direkt in die Entwicklung ein.</p>
+        <p class="why">Pilzlotse ist ein Studienprojekt: Ohne eure Antworten wissen wir nicht, ob die Idee wirklich hilft.</p>
         <div class="meta"><span>anonym</span><span>rund 10 Minuten</span><span>auch ohne Pilzerfahrung</span></div>
       </div>
       <a class="btn btn-lime" data-survey-link data-src="section" target="_blank" rel="noopener">Zur Umfrage</a>
@@ -1440,6 +1532,11 @@ svg.leaflet-image-layer.leaflet-interactive path {
    v8: Kartenbilder robuster (Herkunftsangabe für OpenStreetMap, Ausweich-Karten, klare Meldung bei Sperre); gehostet über GitHub Pages.
    v9: Vollbild auf dem Handy wie eine native App (randlos, sichere Bildschirmränder, „Schließen“ oben rechts, Zurück-Geste und Escape schließen).
    v10: Neuer Name Pilzlotse; Warteliste mit Double-Opt-in und Zählung wichtiger Klicks in einer Google-Tabelle vorbereitet (Apps Script, siehe landingpage/backend).
+   v11: Klickdummy deutlich als interaktiv gekennzeichnet (Badge, Hinweis im Handy, Button im Hero), Umfrage hervorgehoben (Leiste oben, Navigation, Karte unter dem Formular, Ende der Demo).
+   v12: Notruf im Kopf des Klickdummys rot mit Telefon und Totenkopf; Lernen ohne Umschalter, als Kachelliste (Kapitel, Nachschlagewerk, Buch beim Verlag).
+   v13: Ein einheitliches Notruf-Symbol (Totenkopf mit Telefon), Pilz-Notruf auch unter Beratung; Lernen als Übersicht: Kapitel, Meine Lesezeichen, Meine Bücher, Wissensgraph.
+   v14: Notruf-Symbol nur noch unter Beratung (kein Knopf mehr in der Kopfzeile); Symbol: rotes Warndreieck mit Totenkopf.
+   v15: Pilz-Notruf-Hinweis unter Beratung als schmale Zeile.
    ------------------------------------------------------------------
    Vor der Veröffentlichung nur diesen CONFIG-Block anpassen:
    - waitlist.endpoint: Formular-Adresse eures Wartelisten-Dienstes (POST, Formulardaten).
@@ -1476,7 +1573,7 @@ const SEND = new Set(['view', 'email_focus', 'group_select', 'submit_ok', 'submi
   'price_to_waitlist', 'cta_waitlist', 'survey_click', 'faq_open', 'demo_fullscreen', 'demo_to_waitlist', 'demo_paywall', 'demo_tour_done',
   'demo_wald_finden', 'demo_map_tiles']);
 function track(e, p) {
-  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v10' };
+  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v15' };
   T.log.push(ev); T.counts[e] = (T.counts[e] || 0) + 1;
   if (CONFIG.trackingEndpoint && navigator.sendBeacon && SEND.has(e) && !TEST) {
     try { navigator.sendBeacon(CONFIG.trackingEndpoint, new Blob([JSON.stringify(ev)], { type: 'text/plain;charset=UTF-8' })); } catch (_) {}
@@ -1499,6 +1596,22 @@ function setupSurvey() {
 document.addEventListener('click', e => {
   const a = e.target.closest('[data-survey-link]');
   if (a) track('survey_click', { src: a.dataset.src || '' });
+});
+
+/* v11: Umfrage-Leiste schließen (nur für diesen Besuch, nichts wird gespeichert) */
+document.addEventListener('click', e => {
+  const x = e.target.closest('[data-close-sbar]'); if (!x) return;
+  const bar = x.closest('.sbar-top'); if (bar) bar.remove(); track('survey_bar_close');
+});
+/* v11: „App-Vorschau ausprobieren“ – auf dem Handy Vollbild, sonst Handy hervorheben */
+document.addEventListener('click', e => {
+  if (!e.target.closest('[data-try-demo]')) return;
+  track('demo_cta', { src: 'hero' });
+  if (window.matchMedia('(max-width:820px)').matches) { const b = document.querySelector('.demo-cta[data-demo-open]'); if (b) { b.click(); return; } }
+  const ph = document.getElementById('phone'); if (!ph) return;
+  ph.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  ph.classList.remove('spot'); void ph.offsetWidth; ph.classList.add('spot');
+  setTimeout(() => { const f = document.querySelector('#app .abtn.coach, #app .abtn'); if (f) f.focus({ preventScroll: true }); }, 500);
 });
 
 /* ---------- Warteliste ---------- */
@@ -1599,7 +1712,7 @@ function renderTP() {
   const c = T.counts;
   tp.innerHTML = `<b>Testansicht</b> · Kanal: <code>${esc(REF)}</code>
     <table>${ok(!!CONFIG.waitlist.endpoint, 'Wartelisten-Dienst', 'fehlt (Testbetrieb)')}${ok(legalComplete(), 'Impressum-Angaben', 'fehlen')}${ok(!!CONFIG.waitlist.provider, 'Anbieter im Datenschutz', 'fehlt')}${ok(surveyActive(), 'Umfrage-Link', 'aus')}${ok(!!CONFIG.trackingEndpoint, 'Tracking (Preis-Klicks online)', 'aus – nur lokal gezählt')}</table>
-    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Vollbild geschlossen', 'demo_fullscreen_close'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
+    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Vollbild geschlossen', 'demo_fullscreen_close'], ['Vorschau-Button im Hero', 'demo_cta'], ['Umfrage-Leiste geschlossen', 'survey_bar_close'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
     <table>${[['Preis geklickt (gesamt)', 'price_click'], ['· Erste Tour 0 €', 'price:kostenlos'], ['· Zusatzkapitel 2 €', 'price:kapitel'], ['· Saisonpass 20 €', 'price:saisonpass'], ['· Buch beim Verlag', 'price:buch'], ['Von Preis zur Warteliste', 'price_to_waitlist']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}${Object.entries(T.log.filter(x => x.e === 'price_wtp').reduce((m, x) => { const k = x.p.plan + ': ' + x.p.a; m[k] = (m[k] || 0) + 1; return m; }, {})).map(([k, v]) => `<tr><td>· Zahlen? ${esc(k)}</td><td>${v}</td></tr>`).join('')}</table>
     <button type="button" id="tpExport">Protokoll als JSON</button>`;
   $('#tpExport').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ kanal: REF, zaehler: T.counts, ereignisse: T.log }, null, 2)], { type: 'application/json' })); a.download = `pilzlotse_landing_${T.sid}.json`; a.click(); };
@@ -1863,6 +1976,10 @@ const DI = {
   layers:'<polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>',
   search:'<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>',
   sos:'<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" y1="4.93" x2="9.17" y2="9.17"/><line x1="14.83" y1="14.83" x2="19.07" y2="19.07"/><line x1="14.83" y1="9.17" x2="19.07" y2="4.93"/><line x1="4.93" y1="19.07" x2="9.17" y2="14.83"/>',
+  notruf:'<path d="M12 2.4c.55 0 1.05.3 1.33.77l9.25 16.2c.57 1-.15 2.23-1.3 2.23H2.72c-1.15 0-1.87-1.23-1.3-2.23l9.25-16.2c.28-.48.78-.77 1.33-.77z" fill="#D23B2E" stroke="none"/><path d="M12 9.2a4.1 4.1 0 0 0-4.1 4.1c0 1.32.62 2.5 1.6 3.25v1.15c0 .4.32.72.72.72h3.56c.4 0 .72-.32.72-.72v-1.15c.98-.75 1.6-1.93 1.6-3.25A4.1 4.1 0 0 0 12 9.2z" fill="#fff" stroke="none"/><circle cx="10.35" cy="13.35" r="1.1" fill="#D23B2E" stroke="none"/><circle cx="13.65" cy="13.35" r="1.1" fill="#D23B2E" stroke="none"/><path d="M12 14.75l-.6 1.05h1.2z" fill="#D23B2E" stroke="none"/><path d="M11.2 17.25v1.2M12.8 17.25v1.2" stroke="#D23B2E" stroke-width=".75"/>',
+  books:'<path d="M4 4v16"/><path d="M8 8v12"/><path d="M12 6v14"/><path d="m16 6 4 14"/>',
+  graph:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>',
+  skull:'<path d="M12 2.8a7.6 7.6 0 0 0-7.6 7.6c0 2.4 1.1 4.4 2.9 5.7v2.6a1.3 1.3 0 0 0 1.3 1.3h6.8a1.3 1.3 0 0 0 1.3-1.3v-2.6c1.8-1.3 2.9-3.3 2.9-5.7A7.6 7.6 0 0 0 12 2.8z"/><circle cx="9" cy="10.8" r="1.7" fill="currentColor"/><circle cx="15" cy="10.8" r="1.7" fill="currentColor"/><path d="M12 13.6l-1 1.8h2z" fill="currentColor"/><path d="M10.4 20v-2M13.6 20v-2"/>',
   phone:'<path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>',
   car:'<path d="M5 17H3v-5l2.5-5.5h13L21 12v5h-2"/><circle cx="7.5" cy="17" r="2"/><circle cx="16.5" cy="17" r="2"/><line x1="9.5" y1="17" x2="14.5" y2="17"/><line x1="3" y1="12" x2="21" y2="12"/>',
   flag:'<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
@@ -1995,9 +2112,12 @@ const findIll = f => f.under==='Lamellen' ? ILL.lamell : f.under==='Leisten' ? I
 
 const LOGO_DEMO = '<span style="width:28px;height:28px;flex:none"><svg viewBox="0 0 108 108" width="28" height="28" class="mk" aria-hidden="true"><defs><linearGradient id="bgC3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A5A3F"/><stop offset="1" stop-color="#15332D"/></linearGradient><linearGradient id="beamC3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF8DF" stop-opacity=".15"/><stop offset=".55" stop-color="#FFF8DF" stop-opacity=".6"/><stop offset="1" stop-color="#F4EDAC" stop-opacity="1"/></linearGradient></defs><rect width="108" height="108" fill="url(#bgC3)"/><polygon points="14,40 8.8,57.68 11.2,57.68 6.4,75.36 9.2,75.36 4,92 24,92 18.8,75.36 21.6,75.36 16.8,57.68 19.2,57.68" fill="#22503A"/><polygon points="94,40 88.8,57.68 91.2,57.68 86.4,75.36 89.2,75.36 84,92 104,92 98.8,75.36 101.6,75.36 96.8,57.68 99.2,57.68" fill="#22503A"/><polygon points="26,46 21.32,60.96 23.48,60.96 19.16,75.92 21.68,75.92 17,90 35,90 30.32,75.92 32.84,75.92 28.52,60.96 30.68,60.96" fill="#3F6E44"/><polygon points="82,46 77.32,60.96 79.48,60.96 75.16,75.92 77.68,75.92 73,90 91,90 86.32,75.92 88.84,75.92 84.52,60.96 86.68,60.96" fill="#3F6E44"/><path d="M47,-2 L61,-2 L80,84 Q54,91 28,84 Z" fill="url(#beamC3)"/><path d="M41,70 C41,59.5 47,54 54,54 C61,54 67,59.5 67,70 Q67,72 65,72 L43,72 Q41,72 41,70 Z M49.5,74.5 L58.5,74.5 L59.5,82 Q59.5,84 57.5,84 L50.5,84 Q48.5,84 48.5,82 Z" fill="#15332D" transform="translate(54 70) scale(.9) translate(-54 -72)"/></svg></span>';
 function hd(title, sub, back){
-  return `<div class="hd">${back?`<button class="bk" data-d="back" aria-label="Zurück">${di('left')}</button>`:LOGO_DEMO}<h2>${title}${sub?`<span class="sub">${sub}</span>`:''}</h2>${DS.offline?`<span class="off" title="Tour offline gespeichert" role="img" aria-label="Tour offline gespeichert">${di('cloud')}</span>`:''}<button class="act" data-d="sheet:notfall" aria-label="Notfall-Infos">${di('sos')}</button></div>`;
+  return `<div class="hd">${back?`<button class="bk" data-d="back" aria-label="Zurück">${di('left')}</button>`:LOGO_DEMO}<h2>${title}${sub?`<span class="sub">${sub}</span>`:''}</h2>${DS.offline?`<span class="off" title="Tour offline gespeichert" role="img" aria-label="Tour offline gespeichert">${di('cloud')}</span>`:''}</div>`;
 }
 const chkRow = (cmd, on, label, hint, act) => `<button class="chk${on?' on':''}" data-d="${cmd}" aria-pressed="${on}"><span class="bx"></span><span class="t">${label}${hint?`<small>${hint}</small>`:''}</span>${act?`<span class="ca">${act}${di('right')}</span>`:''}</button>`;
+
+/* v11: Hinweis „Tippe hier“, bis jemand zum ersten Mal ins Handy klickt */
+let COACH = true;
 
 /* ---------- Ansichten ---------- */
 const V = {
@@ -2010,7 +2130,7 @@ const V = {
         : `<span class="muted">Ein Schritt nach dem anderen</span><h3>Als Nächstes: ${STEPS[cur][0]}</h3>`}
         <div class="pdots" aria-hidden="true">${d.map((x,i)=>`<i class="${x?'on':i===cur?'cur':''}"></i>`).join('')}</div>
         ${done ? `<button class="abtn" style="margin-top:12px" data-d="waitlist:demo_uebersicht">Für meine echte Tour vormerken</button>`
-               : `<button class="abtn" style="margin-top:12px" data-d="step:${cur}">${goLabel(cur)} ${di('right')}</button>`}</div>
+               : `${COACH?'<span class="coachtip">👆 Tippe hier – die Vorschau ist klickbar</span>':''}<button class="abtn${COACH?' coach':''}" style="margin-top:${COACH?6:12}px" data-d="step:${cur}">${goLabel(cur)} ${di('right')}</button>`}</div>
       <p class="lbl">Dein Weg</p>
       <div class="gap">${STEPS.map(([title],i)=>`<button class="step${d[i]?' done':''}${i===cur?' cur':''}" data-d="step:${i}"><span class="n">${d[i]?di('check'):i+1}</span><span class="tx"><b>${title}</b><span>${stepSub(i)}</span>${i===cur?'<span class="go">Jetzt dran</span>':''}</span>${di('right')}</button>`).join('')}</div>
       <p class="lbl">Vor dem Losgehen</p>
@@ -2020,25 +2140,66 @@ const V = {
   },
 
   lernen(){
-    const tab = DS.ltab || 'kap';
-    let body;
-    if(tab==='kap'){
-      body = `<div class="gap">${D.chapters.map(c=>{
-        const done=DS.learned[c.id];
-        const icon = done ? di('check') : c.paid ? di('lock') : di('book');
-        const tags = (c.tags||[]).map(x=>`<span class="tag">${x}</span>`).join('') + (c.paid?'<span class="tag o">Zusatzkapitel · 2 €</span>':'') + (c.prev?'<span class="tag o">in Fachprüfung</span>':'');
-        return `<button class="row2" data-d="ch:${c.id}"><span class="ic">${icon}</span><span class="tx"><span>Kapitel ${c.nr} · ${c.min} Min.${done?' · gelesen':''}</span><b>${c.t}</b>${tags}</span>${di('right')}</button>`;
-      }).join('')}
-      <div class="card"><b>Tiefer einsteigen?</b><div class="muted" style="margin:2px 0 8px">Die Kapitel stammen aus bewährten Pilzbüchern. Das ganze Buch bekommst du direkt beim Verlag.</div><button class="abtn s" data-d="fd:buch">Beim Verlag ansehen</button></div></div>`;
-    } else {
-      const ks=bmKeys(); const rf=DS.finds.filter(f=>f.under==='Röhren').length;
-      body = ks.length
-        ? `<p class="lbl" style="margin-top:2px">Nach Pilzgruppen</p><div class="gap"><button class="row2" data-d="go:art"><span class="th">${ILL.roehr}</span><span class="tx"><b>Röhrlinge</b><span>${ks.length} Lesezeichen${rf?` · ${rf} Fund${rf>1?'e':''}`:''}</span></span>${di('right')}</button></div>
-           <p class="note">Mit jedem Kapitel und jedem Fund wächst dein persönliches Nachschlagewerk.</p>`
-        : `<div class="empty">${di('bm')}<b>Noch keine Lesezeichen</b><span class="muted">Setz beim Lesen Lesezeichen. Sie landen hier, sortiert nach Pilzgruppe – dein persönliches Nachschlagewerk.</span><button class="abtn s" data-d="ch:k1">Kapitel Röhrlinge lesen</button></div>`;
-    }
+    const ks=bmKeys(); const nDone = D.chapters.filter(c=>DS.learned[c.id]).length; const n=D.chapters.length;
+    const next = D.chapters.find(c=>!DS.learned[c.id] && !c.paid && !c.prev);
+    const free = D.chapters.filter(c=>!c.paid && !c.prev).length;
+    const tile = (cmd, icon, kicker, title, tags) => `<button class="row2 lt" data-d="${cmd}"><span class="ic">${di(icon)}</span><span class="tx"><span>${kicker}</span><b>${title}</b>${tags||''}</span>${di('right')}</button>`;
+    return hd('Lernen', `${nDone} von ${n} Kapiteln gelesen`)+`<div class="bd gap">
+      ${tile('go:kliste','book', `${nDone} von ${n} gelesen`, 'Kapitel', next?`<span class="tag">Weiter: Kapitel ${next.nr}</span>`:'<span class="tag">alle freien Kapitel gelesen</span>')}
+      ${tile('go:nachschlag','bm', ks.length?`${ks.length} Lesezeichen`:'Noch leer', 'Meine Lesezeichen', `<span class="tag">nach Pilzgruppen sortiert</span>`)}
+      ${tile('go:buecher','books', `1 Buch · ${free} von ${n} Kapiteln frei`, 'Meine Bücher', '<span class="tag">ganzes Buch beim Verlag</span>')}
+      ${tile('go:wissen','graph', 'Pilze, Bäume, Doppelgänger, deine Funde', 'Wissensgraph', '<span class="tag o">in Entwicklung</span>')}
+      <p class="note">Die Kapitel stammen aus bewährten Pilzbüchern und werden fachlich geprüft.</p></div>`;
+  },
+
+  kliste(){
     const nDone = D.chapters.filter(c=>DS.learned[c.id]).length;
-    return hd('Lernen', `${nDone} von ${D.chapters.length} Kapiteln gelesen`)+`<div class="bd"><div class="seg"><button class="${tab==='kap'?'on':''}" data-d="ltab:kap">Kapitel</button><button class="${tab==='nach'?'on':''}" data-d="ltab:nach">Nachschlagewerk</button></div>${body}</div>`;
+    const tiles = D.chapters.map(c=>{
+      const done=DS.learned[c.id];
+      const icon = done ? di('check') : c.paid ? di('lock') : di('book');
+      const tags = (c.tags||[]).map(x=>`<span class="tag">${x}</span>`).join('') + (c.paid?'<span class="tag o">Zusatzkapitel · 2 €</span>':'') + (c.prev?'<span class="tag o">in Fachprüfung</span>':'');
+      return `<button class="row2" data-d="ch:${c.id}"><span class="ic">${icon}</span><span class="tx"><span>Kapitel ${c.nr} · ${c.min} Min.${done?' · gelesen':''}</span><b>${c.t}</b>${tags}</span>${di('right')}</button>`;
+    }).join('');
+    return hd('Kapitel', `${nDone} von ${D.chapters.length} gelesen`,1)+`<div class="bd"><div class="gap">${tiles}</div></div>`;
+  },
+
+  nachschlag(){
+    const ks=bmKeys(); const rf=DS.finds.filter(f=>f.under==='Röhren').length;
+    const body = ks.length
+      ? `<p class="lbl" style="margin-top:2px">Nach Pilzgruppen</p><div class="gap"><button class="row2" data-d="go:art"><span class="th">${ILL.roehr}</span><span class="tx"><b>Röhrlinge</b><span>${ks.length} Lesezeichen${rf?` · ${rf} Fund${rf>1?'e':''}`:''}</span></span>${di('right')}</button></div>
+         <p class="note">Mit jedem Kapitel und jedem Fund wächst dein persönliches Nachschlagewerk.</p>`
+      : `<div class="empty">${di('bm')}<b>Noch keine Lesezeichen</b><span class="muted">Setz beim Lesen Lesezeichen. Sie landen hier, sortiert nach Pilzgruppe – dein persönliches Nachschlagewerk.</span><button class="abtn s" data-d="ch:k1">Kapitel Röhrlinge lesen</button></div>`;
+    return hd('Meine Lesezeichen','Nach Pilzgruppen sortiert',1)+`<div class="bd">${body}</div>`;
+  },
+
+  buecher(){
+    const row = c => { const st = DS.learned[c.id] ? ['gelesen',''] : c.paid ? ['Zusatzkapitel · 2 €',' o'] : c.prev ? ['in Fachprüfung',' o'] : ['frei',''];
+      return `<button class="row2" data-d="ch:${c.id}"><span class="ic">${DS.learned[c.id]?di('check'):c.paid?di('lock'):di('book')}</span><span class="tx"><span>Kapitel ${c.nr}</span><b>${c.t}</b><span class="tag${st[1]}">${st[0]}</span></span>${di('right')}</button>`; };
+    return hd('Meine Bücher','Woraus deine Kapitel stammen',1)+`<div class="bd gap">
+      <div class="bookc"><div class="cover" aria-hidden="true"><span>Pilze für Einsteiger</span>${ILL.roehr}</div><div><span class="muted">Beispieltitel · Verlag und Autor:in folgen</span><h3>Pilze für Einsteiger</h3><span class="tag">${D.chapters.filter(c=>!c.paid&&!c.prev).length} Kapitel in Pilzlotse frei</span></div></div>
+      <p class="lbl" style="margin:4px 2px 0">Kapitel aus diesem Buch</p>${D.chapters.map(row).join('')}
+      <button class="abtn s" data-d="fd:buch">Ganzes Buch beim Verlag ansehen</button>
+      <p class="note">Weitere Bücher folgen – zusammen mit Verlagen und Pilzsachverständigen.</p></div>`;
+  },
+
+  wissen(){
+    const found = DS.finds.length>0; const ks=bmKeys().length;
+    const N = { r:[110,24,'Röhrlinge','g'], s:[55,100,'Steinpilz','p'], m:[165,100,'Marone','p'], g:[262,165,'Gallenröhrling','d'], b:[55,212,'Buche','t'], f:[165,212,'Fichte','t'], o:[262,60,found?'Mein Fund':'Dein Fund','o'] };
+    const E = [['r','s','gehört zu',.5,''],['r','m','gehört zu',.5,''],['s','b','wächst mit',.5,''],['s','f','wächst mit',.55,''],['m','f','wächst mit',.68,''],['g','s','',0,'d'],['g','m','verwechselbar',.5,'d'],['o','m','beobachtet',.5,'o']];
+    const col = {g:'#C5F36F',p:'#C5F36F',t:'#8FBF6A',d:'#E8826B',o:'#E2A67C'};
+    const lines = E.map(([a,b,l,t,k])=>{ const [x1,y1]=N[a],[x2,y2]=N[b];
+      return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${k==='d'?'#E8826B':k==='o'?'#E2A67C':'rgba(227,234,219,.35)'}" stroke-width="1.6" ${k?'stroke-dasharray="5 4"':''} ${k==='o'&&!found?'opacity=".4"':''}/>`; }).join('');
+    const labels = E.filter(e=>e[2]).map(([a,b,l,t,k])=>{ const [x1,y1]=N[a],[x2,y2]=N[b]; const x=x1+(x2-x1)*t, y=y1+(y2-y1)*t;
+      return `<text x="${x}" y="${y+3}" text-anchor="middle" class="el" ${k==='o'&&!found?'opacity=".5"':''}>${l}</text>`; }).join('');
+    const edges = lines;
+    const nodes = Object.values(N).map(([x,y,l,k])=>{ const w=l.length*6.6+18;
+      return `<g ${k==='o'&&!found?'opacity=".45"':''}><rect x="${x-w/2}" y="${y-13}" width="${w}" height="26" rx="13" fill="#131D17" stroke="${col[k]}" stroke-width="1.5" ${k==='o'?'stroke-dasharray="4 3"':''}/><text x="${x}" y="${y+4}" text-anchor="middle" class="nl" fill="${col[k]}">${l}</text></g>`; }).join('');
+    return hd('Wissensgraph','So hängt dein Pilzwissen zusammen',1)+`<div class="bd gap">
+      <div class="ban ok">${di('info')}<span>In Entwicklung: Hier wächst zusammen, was du in Kapiteln lernst, markierst und im Wald findest.</span></div>
+      <div class="wg"><svg viewBox="0 0 320 236" role="img" aria-label="Wissensgraph: Steinpilz und Marone gehören zu den Röhrlingen. Der Steinpilz wächst mit Buche und Fichte, die Marone mit Fichte. Der Gallenröhrling ist mit beiden verwechselbar.">${edges}${nodes}${labels}</svg></div>
+      <div class="wleg"><span><i style="background:#C5F36F"></i>aus Kapitel 1</span><span><i style="background:#8FBF6A"></i>Baumpartner</span><span><i style="background:#E8826B"></i>Doppelgänger</span><span><i class="o"></i>deine Beobachtung</span></div>
+      <div class="card"><b>Was du hier später kannst</b><div class="muted" style="margin-top:4px">Verbindungen antippen und sehen, woher das Wissen stammt (Buchkapitel, deine Funde, Pilzberatung).${ks?` Deine ${ks} Lesezeichen fließen mit ein.`:''}</div></div>
+      <p class="note">Beispielinhalt · fachliche Prüfung ausstehend</p></div>`;
   },
 
   kapitel(){
@@ -2133,7 +2294,7 @@ const V = {
 
   waelder(){
     const tab = DS.wtab || 'waelder';
-    const head = `<div class="hd"><div class="hdt"><button class="bk2" data-d="back" aria-label="Zurück zur Karte">${di('left')}Karte</button><h2>Passenden Wald finden</h2></div>${DS.offline?`<span class="off" title="Tour offline gespeichert" role="img" aria-label="Tour offline gespeichert">${di('cloud')}</span>`:''}<button class="act" data-d="sheet:notfall" aria-label="Notfall-Infos">${di('sos')}</button></div>`;
+    const head = `<div class="hd"><div class="hdt"><button class="bk2" data-d="back" aria-label="Zurück zur Karte">${di('left')}Karte</button><h2>Passenden Wald finden</h2></div>${DS.offline?`<span class="off" title="Tour offline gespeichert" role="img" aria-label="Tour offline gespeichert">${di('cloud')}</span>`:''}</div>`;
     const seg = `<div class="seg" style="margin:0" role="tablist"><button class="${tab==='waelder'?'on':''}" data-d="wtab:waelder" role="tab" aria-selected="${tab==='waelder'}">Wälder</button><button class="${tab==='routen'?'on':''}" data-d="wtab:routen" role="tab" aria-selected="${tab==='routen'}">Routen</button></div>`;
     const body = tab==='waelder'
       ? `<div class="ban ok">${di('info')}<span>Regen der letzten 7 Tage: 39 mm. Passend zu deinem Kapitel schlagen wir Wälder mit Buchen, Eichen und Fichten vor.</span></div>
@@ -2235,6 +2396,7 @@ const V = {
   beratung(){
     const a=advList();
     return hd('Pilzberatung','In deiner Nähe')+`<div class="bd gap">
+      <button class="row2 sosrow" data-d="sheet:notfall" aria-label="Pilz-Notruf: Giftnotruf und 112">${di('notruf')}<span class="tx"><b>Pilz-Notruf</b><span>Giftnotruf · 112</span></span>${di('right')}</button>
       <div class="hi"><h3>Fachleute prüfen deine Funde</h3><div class="muted" style="margin-top:2px">Pilzsachverständige sehen sich deine Funde vor Ort an – meist kostenlos. Bring sie ganz und getrennt mit.</div></div>
       <div class="chipr" role="group" aria-label="Filter">${[['heute','Heute'],['woche','Diese Woche'],['alle','Alle']].map(([k,l])=>`<button class="chp${DS.advF===k?' on':''}" data-d="advf:${k}" aria-pressed="${DS.advF===k}">${l}</button>`).join('')}</div>
       ${a.map(x=>`<button class="row2" data-d="advice:${x.id}"><span class="ic">${di('exp')}</span><span class="tx"><b>${x.n}</b><span>${x.o} · ${x.km} km</span><span class="tag${x.w==='heute'?'':' o'}">${di('clock')} ${x.t}</span></span>${di('right')}</button>`).join('')}
@@ -2279,6 +2441,7 @@ const V = {
       <div class="kv2">${kc(fmtMin(r.min),'Dauer')}${kc(r.km+' km','Strecke')}${kc(String(DS.finds.length),DS.finds.length===1?'Fund':'Funde')}</div>
       <button class="row2" data-d="ch:k2"><span class="ic">${di('book')}</span><span class="tx"><b>Nächster Lernschritt</b><span>Kapitel 2: Lamellen oder Leisten?</span></span>${di('right')}</button>
       <button class="abtn" data-d="waitlist:demo_ende">Für meine echte Tour vormerken</button>
+      ${surveyActive()?`<button class="row2 srvrow" data-d="survey:demo_ende"><span class="ic" aria-hidden="true">📝</span><span class="tx"><b>Wie fandest du die Vorschau?</b><span>Sag es uns in der Umfrage – anonym, rund 10 Minuten</span></span>${di('right')}</button>`:''}
       <button class="abtn s" data-d="reset">Demo neu starten</button></div>`;
   }
 };
@@ -2294,7 +2457,7 @@ const SH = {
         : `<button class="abtn" data-d="pickforest:${id}">${DS.forest===id?'Gewählt – Route planen':'Diesen Wald wählen'} ${di('right')}</button>`}</div>`;
   },
   notfall(){
-    return `<h3>Notfall</h3><p class="muted" style="margin:4px 0 12px">Bei Beschwerden nach einer Pilzmahlzeit sofort anrufen. Bewahre Pilzreste und Putzabfälle auf.</p>
+    return `<h3 class="nth"><span class="nti">${di('notruf')}</span>Pilz-Notruf</h3><p class="muted" style="margin:4px 0 12px">Bei Beschwerden nach einer Pilzmahlzeit sofort anrufen. Bewahre Pilzreste und Putzabfälle auf.</p>
       <div class="gap"><button class="abtn red" data-d="toast:In der App startet hier der Anruf (Simulation).">${di('phone')} 112 – bei Lebensgefahr</button>
       <button class="abtn s" data-d="toast:In der App startet hier der Anruf (Simulation).">${di('phone')} Giftnotruf Freiburg: 0761 19240</button>
       <span class="tag" style="align-self:flex-start">offline verfügbar · immer kostenlos</span></div>`;
@@ -2328,7 +2491,7 @@ const SH = {
 
 /* ---------- Render und Aktionen ---------- */
 const TABS = [['tour','Tour','compass'],['lernen','Lernen','book'],['karte','Karte','map'],['funde','Funde','cam'],['beratung','Beratung','exp']];
-const TAB_OF = { kapitel:'lernen', vgl:'lernen', art:'lernen', waelder:'karte', routen:'karte', route:'karte', check:'tour', unterwegs:'tour', auto:'tour', offen:'tour', fertig:'tour', capture:'funde', find:'funde', advice:'beratung' };
+const TAB_OF = { kapitel:'lernen', nachschlag:'lernen', kliste:'lernen', buecher:'lernen', wissen:'lernen', vgl:'lernen', art:'lernen', waelder:'karte', routen:'karte', route:'karte', check:'tour', unterwegs:'tour', auto:'tour', offen:'tour', fertig:'tour', capture:'funde', find:'funde', advice:'beratung' };
 const dView = () => DS.stack.length ? DS.stack[DS.stack.length-1] : DS.tab;
 function dRender(){
   const app=document.getElementById('app'); if(!app) return;
@@ -2447,6 +2610,7 @@ function dAct(cmd){
     case 'remind': DS.remind=!DS.remind; dRender(); if(DS.remind) dToastShow('Erinnerung gesetzt (Demo, es wird keine Nachricht gesendet).'); return;
     case 'fd': DS.sheet=null; dRender(); return openFD(arg,'demo');
     case 'waitlist': return goWaitlist(arg);
+    case 'survey': track('survey_click',{ src: arg||'demo' }); if(CONFIG.surveyUrl) window.open(CONFIG.surveyUrl,'_blank','noopener'); return;
     case 'reset': { const keep={ tiles:DS.tiles, tilesTried:DS.tilesTried, tilesBlocked:DS.tilesBlocked, lyr:DS.lyr }; DS=Object.assign(dFresh(), keep); if(LM.map) LM.map.closePopup(); dRender(); track('demo_reset'); return; }
   }
 }
@@ -2459,7 +2623,7 @@ window.addEventListener('resize', amFit);
 let closeDemo = () => {};
 function setupDemo(){
   dRender();
-  document.addEventListener('click', e=>{ const b=e.target.closest('#app [data-d]'); if(b){ dAct(b.dataset.d); } });
+  document.addEventListener('click', e=>{ if(COACH && e.target.closest('#app')){ COACH=false; } const b=e.target.closest('#app [data-d]'); if(b){ dAct(b.dataset.d); } });
   document.addEventListener('keydown', e=>{
     const t=e.target;
     if((e.key==='Enter'||e.key===' ') && t.matches && t.matches('#app g[data-d]')){ e.preventDefault(); dAct(t.dataset.d); }
