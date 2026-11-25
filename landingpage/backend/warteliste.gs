@@ -1,6 +1,6 @@
 /**
  * Pilzlotse – Warteliste und Zählung für die Landingpage
- * (https://blackteawonder.github.io/PilzMap/landingpage/)
+ * (https://blackteawonder.github.io/Pilzlotse/landingpage/)
  *
  * Speichert Einträge in die Warteliste mit Double-Opt-in und zählt wichtige Klicks
  * (Besuche, Preisangebote, Umfrage, Vollbild) in der Google-Tabelle
@@ -37,7 +37,7 @@
 var CONFIG = {
   SHEET_ID: '1MWsyLL0I9YvEzomx5Jd5wJaW1tiwd17iyPLwKbfl3jU',
   SENDER_NAME: 'Pilzlotse (Studienprojekt HKA)',
-  LANDINGPAGE_URL: 'https://blackteawonder.github.io/PilzMap/landingpage/',
+  LANDINGPAGE_URL: 'https://blackteawonder.github.io/Pilzlotse/landingpage/',
   FROM_ADDRESS: 'pilzlotse@gmx.de',
   CONTACT_MAIL: 'pilzlotse@gmx.de',
   UNCONFIRMED_DELETE_DAYS: 30,

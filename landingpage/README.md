@@ -2,7 +2,7 @@
 
 Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einsteiger:innen eine geführte erste Pilztour wollen und welche Preise passen.
 
-**Online:** https://blackteawonder.github.io/PilzMap/landingpage/
+**Online:** https://blackteawonder.github.io/Pilzlotse/landingpage/
 
 ## Inhalt
 
