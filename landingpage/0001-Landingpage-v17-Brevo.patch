@@ -1,0 +1,198 @@
+From e170df34ffd8551e79403412cb0420bfd6a61455 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 28 Nov 2026 11:57:49 +0100
+Subject: [PATCH] =?UTF-8?q?Landingpage=20v17:=20Warteliste=20=C3=BCber=20B?=
+ =?UTF-8?q?revo,=20Danke-Meldung=20nach=20Best=C3=A4tigung,=20Umfrage=20bi?=
+ =?UTF-8?q?s=2010.12.?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01SrNcmodTgVrgFFrs5WEh1h
+---
+ landingpage/README.md  | 12 +++++----
+ landingpage/index.html | 58 +++++++++++++++++++++++++++++++++---------
+ 2 files changed, 53 insertions(+), 17 deletions(-)
+
+diff --git a/landingpage/README.md b/landingpage/README.md
+index da5e25e..aa0b989 100644
+--- a/landingpage/README.md
++++ b/landingpage/README.md
+@@ -6,20 +6,22 @@ Fake-Door-Landingpage für das Hochschulprojekt (Inno/EP): Sie testet, ob Einste
+ 
+ ## Inhalt
+ 
+-- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v16 vom 25.11.2026 (Name: Pilzlotse, vorher Waldlotse; Logo B „Pilz-Pin“ aus dem Branding-Set). Neu seit v10: Hinweis, dass die Handy-Vorschau klickbar ist, Umfrage deutlicher hervorgehoben, Lernen als Übersicht (Kapitel, Meine Lesezeichen, Meine Bücher, Wissensgraph), Pilz-Notruf mit Warndreieck nur unter Beratung. Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
++- `index.html` – die komplette Seite in einer Datei (Schriften, Kartenbibliothek Leaflet 1.9.4 und Geodaten eingebettet). Stand: v17 vom 28.11.2026 (Warteliste über Brevo). v16 vom 25.11.2026 (Name: Pilzlotse, vorher Waldlotse; Logo B „Pilz-Pin“ aus dem Branding-Set). Neu seit v10: Hinweis, dass die Handy-Vorschau klickbar ist, Umfrage deutlicher hervorgehoben, Lernen als Übersicht (Kapitel, Meine Lesezeichen, Meine Bücher, Wissensgraph), Pilz-Notruf mit Warndreieck nur unter Beratung. Auf dem Handy öffnet „App im Vollbild ansehen“ die Vorschau randlos wie eine App; „Schließen“ oben rechts, Zurück-Geste oder Escape beenden sie.
+ 
+ ## Warteliste und Zählung
+ 
+-- `backend/warteliste.gs` – Google Apps Script. Speichert Anmeldungen (mit Bestätigungsmail, Double-Opt-in) und wichtige Klicks in der Google-Tabelle „Pilzlotse – Warteliste und Auswertung“ (Drive: PilzProjekt / Landingpage Warteliste). Das Blatt „Auswertung“ rechnet Eintragungsquote, Fake-Door-Quote, Preis-Antworten und Kanäle aus.
+-- Absender der Bestätigungsmails ist pilzlotse@gmx.de: Das Skript läuft im Google-Konto, dem die Tabelle gehört, und verschickt über Gmail „Senden als“ via GMX-Server. Es braucht nur die Berechtigung zum Senden (`gmail.send`), nicht zum Lesen des Postfachs.
+-- Einrichtung: Schritte A–F oben in `backend/warteliste.gs`; das Manifest liegt in `backend/appsscript.json`. Die Web-App-URL kommt in `CONFIG.waitlist.endpoint` und `CONFIG.trackingEndpoint`.
++- **Warteliste (seit v17): Brevo.** Das Formular schickt die Anmeldung direkt an das Brevo-Formular „Warteliste Landingpage“ (Liste „Warteliste Pilzlotse“, #3). Felder: `EMAIL`, `GRUPPE`, `KANAL`, `TARIF`, `ZAHLUNGSBEREITSCHAFTZAHLUNGSBEREITSCHAFT` (ID in Brevo versehentlich doppelt, funktioniert so), dazu Honeypot `email_address_check` (leer), `locale=de`, `html_type=simple`.
++- Double-Opt-in verschickt Brevo von hallo@pilzlotse.de (Domain bei Brevo authentifiziert). Nach dem Klick auf den Bestätigungslink leitet Brevo auf `?bestaetigt=1` weiter; die Seite zeigt dann „Danke, deine Anmeldung ist bestätigt!“ und zählt `doi_confirmed`.
++- **Klickzählung:** läuft noch über `backend/warteliste.gs` (Google Apps Script, `CONFIG.trackingEndpoint`). Der Wartelisten-Teil des Skripts wird nicht mehr genutzt. Umstellung auf Supabase oder Plausible ist offen; danach `trackingEndpoint` und `trackingProvider` ändern.
++- **Umfrage:** sichtbar bis `surveyUntil` (10.12.2026), danach blendet die Seite alle Umfrage-Hinweise aus. Anbieter steht in `surveyProvider` (FAQ und Datenschutzhinweis übernehmen ihn).
+ - Mit `?test=1` werden keine Klicks verschickt.
+ 
+ ## Vor dem Teilen
+ 
+-Im Skript den Block `CONFIG` ergänzen:
++Im Skript den Block `CONFIG` prüfen:
+ 
+ - `waitlist.endpoint` – Formular-Adresse des Wartelisten-Dienstes. Leer = Testbetrieb (die Seite sagt dann ehrlich, dass nichts gespeichert wird).
++- `waitlist.deleteBy` – Löschdatum der Warteliste (JJJJ-MM-TT), erscheint im Datenschutzhinweis.
+ - `legal` – Name, Anschrift und E-Mail für Impressum und Datenschutz. Solange leer, steht dort ein Platzhalter.
+ 
+ ## Nützlich
+diff --git a/landingpage/index.html b/landingpage/index.html
+index 2f23536..9fbf0d2 100644
+--- a/landingpage/index.html
++++ b/landingpage/index.html
+@@ -1486,7 +1486,7 @@ svg.leaflet-image-layer.leaflet-interactive path {
+       <details><summary>Woher kommen die Lerninhalte?</summary><p>Die Inhalte sollen auf bewährten Pilzbüchern aufbauen, in Zusammenarbeit mit Verlagen und Pilzsachverständigen, die selbst Bücher geschrieben haben. Wir schreiben also keine eigenen Bestimmungstexte, sondern bringen geprüftes Fachwissen in die App.</p></details>
+       <details><summary>Was kostet die App?</summary><p>Die erste Tour und alle Sicherheitsinhalte sollen kostenlos sein. Vertiefende Kapitel aus Partnerbüchern soll es einzeln für 2 € oder im Saisonpass für 20 € pro Saison geben, ohne automatische Verlängerung. Die Preise sind ein Entwurf; noch kann man nichts kaufen. Mehr unter <a href="#preise">Preise</a>.</p></details>
+       <details><summary>Brauche ich Vorwissen?</summary><p>Nein. Pilzlotse ist für Menschen gedacht, die noch nie oder nur selten Pilze gesammelt haben.</p></details>
+-      <details data-survey><summary>Was hat es mit der Umfrage auf sich?</summary><p>Mit der Umfrage finden wir heraus, wie Menschen ins Pilzesammeln einsteigen und was ihnen dabei fehlt. Sie ist anonym, dauert rund 10 Minuten und läuft über Google Forms. Die Umfrage ist unabhängig von der Warteliste: Du kannst das eine ohne das andere machen.</p></details>
++      <details data-survey><summary>Was hat es mit der Umfrage auf sich?</summary><p>Mit der Umfrage finden wir heraus, wie Menschen ins Pilzesammeln einsteigen und was ihnen dabei fehlt. Sie ist anonym, dauert rund 10 Minuten und läuft über <span data-survey-provider>Google Forms</span>. Die Umfrage ist unabhängig von der Warteliste: Du kannst das eine ohne das andere machen.</p></details>
+       <details><summary>Was passiert mit meiner E-Mail-Adresse?</summary><p>Wir nutzen sie nur, um dich über Pilzlotse zu informieren, und löschen sie nach Abschluss des Projekts. Abmelden kannst du dich jederzeit über den Link in jeder Mail. Details stehen im <button type="button" class="linkbtn" data-dialog="datenschutz" style="background:none;border:0;padding:0;color:var(--lime);text-decoration:underline;font:inherit">Datenschutzhinweis</button>.</p></details>
+     </div>
+   </div>
+@@ -1538,28 +1538,46 @@ svg.leaflet-image-layer.leaflet-interactive path {
+    v14: Notruf-Symbol nur noch unter Beratung (kein Knopf mehr in der Kopfzeile); Symbol: rotes Warndreieck mit Totenkopf.
+    v15: Pilz-Notruf-Hinweis unter Beratung als schmale Zeile.
+    v16: Logo B „Pilz-Pin“ aus dem Branding-Set (Kopfzeile, Favicon, Clickdummy) statt Konzept C „Lichtkegel“.
++   v17: Warteliste über Brevo (Double-Opt-in, Absender hallo@pilzlotse.de) statt Google-Tabelle/GMX; Danke-Meldung nach Bestätigung (?bestaetigt=1);
++        Umfrage bis 10.12.2026; Datenschutzhinweis: Brevo, GitHub (USA), Umfrage- und Zähldienst einzeln benannt, IP-Satz korrigiert.
+    ------------------------------------------------------------------
+    Vor der Veröffentlichung nur diesen CONFIG-Block anpassen:
+    - waitlist.endpoint: Formular-Adresse eures Wartelisten-Dienstes (POST, Formulardaten).
+        Leer = Testbetrieb: Die Seite funktioniert, speichert aber nichts und sagt das auch.
+    - waitlist.fields: Feldnamen, die euer Dienst erwartet (z. B. EMAIL bei Brevo, entry.123 bei Google Forms).
+    - waitlist.provider: Name des Dienstes für den Datenschutzhinweis (z. B. „Brevo (Sendinblue GmbH, Berlin)“).
++   - waitlist.extra: feste Zusatzfelder, die der Dienst erwartet (Brevo: Honeypot email_address_check leer, locale, html_type).
++   - waitlist.sender: Absenderadresse der Bestätigungsmail (für den Datenschutzhinweis).
+    - waitlist.doubleOptIn: true nur, wenn der Dienst wirklich eine Bestätigungsmail verschickt.
++     Brevo leitet nach der Bestätigung auf ?bestaetigt=1 weiter; die Seite zeigt dann eine Danke-Meldung.
++   - waitlist.deleteBy: optional, Datum JJJJ-MM-TT, bis zu dem die Warteliste gelöscht wird. Leer = „nach Abschluss des Projekts“.
++   - surveyProvider: Umfragetool mit Anbieter (für FAQ und Datenschutzhinweis).
+    - legal: Angaben für Impressum und Datenschutz (Pflicht vor der Veröffentlichung).
+    - hosting: Name des Hosters für den Datenschutzhinweis (z. B. „GitHub Pages (GitHub Inc., USA)“).
+    - surveyUntil: Datum JJJJ-MM-TT; danach blendet die Seite alle Umfrage-Hinweise aus. Leer = immer sichtbar.
+    - trackingEndpoint: optional; leer = es werden keine Nutzungsdaten gesendet.
++   - trackingProvider: Dienst, bei dem die Klickzählung liegt (für den Datenschutzhinweis).
+    - pricing.highlight: 'saisonpass' hebt den Saisonpass hervor; '' = alle drei Angebote gleich (neutraler für Hypothese H10).
+ */
+ 'use strict';
+ const CONFIG = {
+   surveyUrl: 'https://forms.gle/Q4WVxnZ7aZjxsZj79',
+-  surveyUntil: '',
+-  waitlist: { endpoint: 'https://script.google.com/macros/s/AKfycbwLlBxHXykCKbvoyn5-tYUzUrz5S21A3jaRPS5pmg2iUqlbS2zMFBnWuFFdqnapKF3Cdw/exec', fields: { email: 'email', group: 'gruppe', ref: 'kanal', plan: 'tarif', wtp: 'zahlen' }, provider: 'Google (Google Ireland Limited, Dublin) in einer Google-Tabelle', doubleOptIn: true },
++  surveyUntil: '2026-12-10',
++  surveyProvider: 'Google Forms (Google Ireland Limited, Dublin)',
++  waitlist: {
++    endpoint: 'https://93ee6f78.sibforms.com/serve/MUIFAIfXC-N_sJkK6yywCIBxsnqS_wRujnUyhu9a1n4fI8Wyx-ghh3hwV8U255D60E_cHQf0HcdjW0ANhZgDcvFaInyG6BqezkwpDR7uygilaUV3lnEY5iGaOtJDXXSEZtkPxo7Tj0hETZSEitKJm5s0U_O4Di32K9UPWgA5TfhcputSkMRhK1k2Ubzo7S9dEUaaRzaLYOqmXdy2Qg==',
++    fields: { email: 'EMAIL', group: 'GRUPPE', ref: 'KANAL', plan: 'TARIF', wtp: 'ZAHLUNGSBEREITSCHAFTZAHLUNGSBEREITSCHAFT' },
++    extra: { email_address_check: '', locale: 'de', html_type: 'simple' },
++    provider: 'Brevo (Brevo GmbH, Berlin)',
++    sender: 'hallo@pilzlotse.de',
++    doubleOptIn: true,
++    deleteBy: ''
++  },
+   pricing: { highlight: 'saisonpass' },
+   legal: { name: 'May Sosnowski', street: 'Moltkestraße 30', city: '76133 Karlsruhe', email: 'soma1037@h-ka.de' },
+   hosting: 'GitHub Pages (GitHub Inc., USA)',
+-  trackingEndpoint: 'https://script.google.com/macros/s/AKfycbwLlBxHXykCKbvoyn5-tYUzUrz5S21A3jaRPS5pmg2iUqlbS2zMFBnWuFFdqnapKF3Cdw/exec'
++  trackingEndpoint: 'https://script.google.com/macros/s/AKfycbwLlBxHXykCKbvoyn5-tYUzUrz5S21A3jaRPS5pmg2iUqlbS2zMFBnWuFFdqnapKF3Cdw/exec',
++  trackingProvider: 'Google (Google Ireland Limited, Dublin) in einer Google-Tabelle'
+ };
+ 
+ const $ = (s, r) => (r || document).querySelector(s);
+@@ -1572,9 +1590,9 @@ const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;',
+ 
+ const SEND = new Set(['view', 'email_focus', 'group_select', 'submit_ok', 'submit_invalid', 'submit_error', 'price_click', 'price_wtp',
+   'price_to_waitlist', 'cta_waitlist', 'survey_click', 'faq_open', 'demo_fullscreen', 'demo_to_waitlist', 'demo_paywall', 'demo_tour_done',
+-  'demo_wald_finden', 'demo_map_tiles']);
++  'demo_wald_finden', 'demo_map_tiles', 'doi_confirmed']);
+ function track(e, p) {
+-  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v16' };
++  const ev = { e, p: p || null, ref: REF, sid: T.sid, t: new Date().toISOString(), v: 'landing-v17' };
+   T.log.push(ev); T.counts[e] = (T.counts[e] || 0) + 1;
+   if (CONFIG.trackingEndpoint && navigator.sendBeacon && SEND.has(e) && !TEST) {
+     try { navigator.sendBeacon(CONFIG.trackingEndpoint, new Blob([JSON.stringify(ev)], { type: 'text/plain;charset=UTF-8' })); } catch (_) {}
+@@ -1593,6 +1611,7 @@ function setupSurvey() {
+   const on = surveyActive();
+   $$('[data-survey]').forEach(el => { el.hidden = !on; });
+   $$('[data-survey-link]').forEach(a => { a.href = CONFIG.surveyUrl; });
++  if (CONFIG.surveyProvider) $$('[data-survey-provider]').forEach(el => { el.textContent = CONFIG.surveyProvider; });
+ }
+ document.addEventListener('click', e => {
+   const a = e.target.closest('[data-survey-link]');
+@@ -1645,8 +1664,9 @@ function setupForm() {
+     let stored = false;
+     if (CONFIG.waitlist.endpoint) {
+       const f = CONFIG.waitlist.fields, body = new URLSearchParams();
+-      body.append(f.email, v); body.append('einwilligung', 'ja'); if (f.group && group) body.append(f.group, group); if (f.ref) body.append(f.ref, REF);
++      body.append(f.email, v); if (f.consent) body.append(f.consent, 'ja'); if (f.group && group) body.append(f.group, group); if (f.ref) body.append(f.ref, REF);
+       if (f.plan && planInterest) body.append(f.plan, planInterest); if (f.wtp && wtpAnswer && planInterest) body.append(f.wtp, wtpAnswer);
++      Object.entries(CONFIG.waitlist.extra || {}).forEach(([k, x]) => body.append(k, x));
+       try { await fetch(CONFIG.waitlist.endpoint, { method: 'POST', mode: 'no-cors', body }); stored = true; }
+       catch (_) {
+         btn.disabled = false; btn.textContent = 'Eintragen';
+@@ -1667,6 +1687,19 @@ function showSuccess(mail, stored) {
+   $('#wlForm').hidden = true; ok.hidden = false; ok.focus();
+ }
+ 
++/* v17: Danke-Meldung, wenn Brevo nach der Bestätigung hierher zurückleitet (?bestaetigt=1) */
++function showConfirmed() {
++  const ok = $('#wlOk');
++  ok.innerHTML = `<h2>Danke, deine Anmeldung ist bestätigt!</h2>
++    <p>Du stehst jetzt auf der Warteliste. Wir melden uns, sobald du Pilzlotse testen kannst. Abmelden kannst du dich jederzeit über den Link in unseren Mails.</p>
++    ${surveyActive() ? `<div class="box"><h3>Magst du uns noch 10 Minuten schenken?</h3><p>Mit unserer anonymen Umfrage hilfst du uns, Pilzlotse so zu bauen, dass es dir beim Einstieg wirklich hilft.</p><a class="btn btn-lime" href="${esc(CONFIG.surveyUrl)}" target="_blank" rel="noopener" data-survey-link data-src="nach_bestaetigung">Zur Umfrage</a></div>` : ''}`;
++  $('#wlForm').hidden = true; ok.hidden = false;
++  const wl = $('#warteliste'); if (wl) setTimeout(() => { wl.scrollIntoView({ behavior: 'smooth', block: 'center' }); ok.focus({ preventScroll: true }); }, 300);
++  track('doi_confirmed');
++  // Parameter aus der Adresse entfernen, damit Neuladen oder Teilen die Meldung nicht wiederholt
++  try { const u = new URL(location.href); u.searchParams.delete('bestaetigt'); history.replaceState(null, '', u.pathname + u.search + u.hash); } catch (_) {}
++}
++
+ /* ---------- Impressum und Datenschutz ---------- */
+ function legalComplete() { const l = CONFIG.legal; return !!(l.name && l.street && l.city && l.email); }
+ function legalBlock() {
+@@ -1683,10 +1716,10 @@ const DIALOGS = {
+     return ['Datenschutzhinweis', `${TEST ? '<p class="warn">Entwurf: vor der Veröffentlichung mit den tatsächlich genutzten Diensten abgleichen und prüfen lassen.</p>' : ''}
+     <h3>Verantwortlich</h3>${legalBlock()}
+     <h3>Warteliste</h3><p>Wenn du dich einträgst, verarbeiten wir deine E-Mail-Adresse, deine freiwillige Angabe, mit wem du losgehen willst, gegebenenfalls das Preisangebot, das du angeklickt hast, und deine freiwillige Antwort zur Zahlungsbereitschaft, den Kanal, über den du auf diese Seite gekommen bist, und den Zeitpunkt der Anmeldung. Zweck: dich zu informieren, sobald du Pilzlotse testen kannst. Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Du kannst sie jederzeit widerrufen, zum Beispiel über den Abmeldelink in jeder Mail.</p>
+-    ${w.provider ? `<p>Die Warteliste wird bei ${esc(w.provider)} gespeichert. Die Bestätigungsmail verschicken wir von pilzlotse@gmx.de über GMX (1&1 Mail & Media GmbH, Montabaur).${w.doubleOptIn ? ' Nach der Anmeldung bekommst du eine Mail mit einem Bestätigungslink; erst danach stehst du auf der Liste.' : ''}</p>` : ''}
+-    <p>Wir löschen die Daten nach Abschluss des Projekts.</p>
+-    <h3>Umfrage</h3><p>Die Umfrage ist freiwillig, anonym und von der Warteliste getrennt. Sie läuft über Google Forms (Google). Für die Verarbeitung dort gelten zusätzlich die Datenschutzhinweise von Google.</p>
+-    <h3>Aufruf dieser Seite</h3><p>${CONFIG.hosting ? `Diese Seite wird bei ${esc(CONFIG.hosting)} bereitgestellt. ` : ''}Beim Aufruf verarbeitet der Hoster technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern. Diese Seite setzt keine Cookies und lädt keine Schriften oder Skripte von fremden Servern. Kartenbilder lädt sie nur, wenn du sie in der App-Vorschau anforderst (siehe unten).${CONFIG.trackingEndpoint ? ' Klicks auf wichtige Seitenelemente, zum Beispiel auf die Preisangebote, zählen wir mit einer zufälligen Kennung für diesen Besuch, ohne Namen, E-Mail-Adresse oder IP-Adresse. Die Zählung liegt in derselben Google-Tabelle wie die Warteliste und wird nach Projektende gelöscht.' : ''}</p>
++    ${w.provider ? `<p>Die Warteliste wird bei ${esc(w.provider)} gespeichert, das in unserem Auftrag arbeitet (Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO). ${w.sender ? `Brevo verschickt die Mails in unserem Auftrag von ${esc(w.sender)}.` : ''}${w.doubleOptIn ? ' Nach der Anmeldung bekommst du eine Mail mit einem Bestätigungslink; erst danach stehst du auf der Liste.' : ''}</p>` : ''}
++    <p>${w.deleteBy && !isNaN(new Date(w.deleteBy)) ? `Wir löschen die Warteliste spätestens am ${new Date(w.deleteBy + 'T12:00:00').toLocaleDateString('de-DE')}.` : 'Wir löschen die Warteliste nach Abschluss des Projekts.'}</p>
++    <h3>Umfrage</h3><p>Die Umfrage ist freiwillig, anonym und von der Warteliste getrennt.${CONFIG.surveyProvider ? ` Sie läuft über ${esc(CONFIG.surveyProvider)}. Für die Verarbeitung dort gelten zusätzlich die Datenschutzhinweise dieses Anbieters.` : ''}</p>
++    <h3>Aufruf dieser Seite</h3><p>${CONFIG.hosting ? `Diese Seite wird bei ${esc(CONFIG.hosting)} bereitgestellt. ` : ''}Beim Aufruf verarbeitet der Hoster technisch notwendige Daten wie deine IP-Adresse, um die Seite auszuliefern. ${/GitHub/.test(CONFIG.hosting || '') ? 'Für die Übermittlung in die USA ist GitHub nach dem EU-US Data Privacy Framework zertifiziert. ' : ''}Diese Seite setzt keine Cookies und lädt keine Schriften oder Skripte von fremden Servern. Kartenbilder lädt sie nur, wenn du sie in der App-Vorschau anforderst (siehe unten).${CONFIG.trackingEndpoint ? ` Klicks auf wichtige Seitenelemente, zum Beispiel auf die Preisangebote, zählen wir mit einer zufälligen Kennung für diesen Besuch. Wir speichern dabei weder Namen noch E-Mail-Adresse noch IP-Adresse. Der Dienst, der die Zählung entgegennimmt, sieht deine IP-Adresse technisch bedingt, sie wird aber nicht in der Zählung abgelegt.${CONFIG.trackingProvider ? ` Die Zählung liegt bei ${esc(CONFIG.trackingProvider)}` : ' Die Zählung'} und wird nach Projektende gelöscht.` : ''}</p>
+     <h3>Karte in der App-Vorschau</h3><p>Schutzgebiete, Wälder und Routen der Karte sind in dieser Seite enthalten. Kartenbilder (Kacheln) lädt dein Browser erst, wenn du in der App-Vorschau „Karte laden“ oder „Kartenbilder laden“ antippst oder eine Hintergrundkarte auswählst. Sie kommen dann direkt von OpenStreetMap (OpenStreetMap Foundation, Vereinigtes Königreich), bei der Topographie-Karte von OpenTopoMap, bei der Outdoor-Karte von CyclOSM (OpenStreetMap France). Diese Anbieter erhalten dabei deine IP-Adresse und technische Angaben deines Browsers. Deine Auswahl speichern wir nicht.</p>
+      <h3>Deine Rechte</h3><p>Du hast das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch. Außerdem kannst du dich bei einer Datenschutz-Aufsichtsbehörde beschweren, zum Beispiel beim Landesbeauftragten für den Datenschutz und die Informationsfreiheit Baden-Württemberg.</p>`];
+   }
+@@ -1713,7 +1746,7 @@ function renderTP() {
+   const c = T.counts;
+   tp.innerHTML = `<b>Testansicht</b> · Kanal: <code>${esc(REF)}</code>
+     <table>${ok(!!CONFIG.waitlist.endpoint, 'Wartelisten-Dienst', 'fehlt (Testbetrieb)')}${ok(legalComplete(), 'Impressum-Angaben', 'fehlen')}${ok(!!CONFIG.waitlist.provider, 'Anbieter im Datenschutz', 'fehlt')}${ok(surveyActive(), 'Umfrage-Link', 'aus')}${ok(!!CONFIG.trackingEndpoint, 'Tracking (Preis-Klicks online)', 'aus – nur lokal gezählt')}</table>
+-    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Vollbild geschlossen', 'demo_fullscreen_close'], ['Vorschau-Button im Hero', 'demo_cta'], ['Umfrage-Leiste geschlossen', 'survey_bar_close'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
++    <table>${[['Seite geladen', 'view'], ['E-Mail-Feld angetippt', 'email_focus'], ['Anmeldung abgeschickt', 'submit_ok'], ['Anmeldung bestätigt (Rückkehr von Brevo)', 'doi_confirmed'], ['Eingabe unvollständig', 'submit_invalid'], ['Umfrage geklickt', 'survey_click'], ['FAQ geöffnet', 'faq_open'], ['App-Vorschau: Tabs', 'demo_tab'], ['App-Vorschau: Seiten', 'demo_view'], ['Demo: Kapitel abgeschlossen', 'demo_chapter_done'], ['Demo: Tour abgeschlossen', 'demo_tour_done'], ['Demo → Warteliste', 'demo_to_waitlist'], ['Demo: Vollbild geschlossen', 'demo_fullscreen_close'], ['Vorschau-Button im Hero', 'demo_cta'], ['Umfrage-Leiste geschlossen', 'survey_bar_close'], ['Demo: Karte geladen', 'demo_map_tiles'], ['Demo: Ebene geschaltet', 'demo_layer'], ['Demo: Karten-Popup', 'demo_map_popup'], ['Demo: „Passenden Wald finden“', 'demo_wald_finden']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}</table>
+     <table>${[['Preis geklickt (gesamt)', 'price_click'], ['· Erste Tour 0 €', 'price:kostenlos'], ['· Zusatzkapitel 2 €', 'price:kapitel'], ['· Saisonpass 20 €', 'price:saisonpass'], ['· Buch beim Verlag', 'price:buch'], ['Von Preis zur Warteliste', 'price_to_waitlist']].map(([l, k]) => `<tr><td>${l}</td><td>${c[k] || 0}</td></tr>`).join('')}${Object.entries(T.log.filter(x => x.e === 'price_wtp').reduce((m, x) => { const k = x.p.plan + ': ' + x.p.a; m[k] = (m[k] || 0) + 1; return m; }, {})).map(([k, v]) => `<tr><td>· Zahlen? ${esc(k)}</td><td>${v}</td></tr>`).join('')}</table>
+     <button type="button" id="tpExport">Protokoll als JSON</button>`;
+   $('#tpExport').onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify({ kanal: REF, zaehler: T.counts, ereignisse: T.log }, null, 2)], { type: 'application/json' })); a.download = `pilzlotse_landing_${T.sid}.json`; a.click(); };
+@@ -1722,6 +1755,7 @@ function renderTP() {
+ document.addEventListener('DOMContentLoaded', () => {
+   setupSurvey(); setupForm(); setupDialogs(); setupMisc(); setupPricing();
+   if (TEST) $('#tp').classList.add('show');
++  if (params.get('bestaetigt') === '1') showConfirmed();
+   if (!legalComplete() || !CONFIG.waitlist.endpoint) console.warn('Pilzlotse-Landingpage: Vor der Veröffentlichung CONFIG ergänzen (Wartelisten-Dienst, Impressum).');
+   track('view', { mobile: matchMedia('(max-width:560px)').matches });
+ });
+-- 
+2.43.0
+
